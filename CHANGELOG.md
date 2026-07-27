@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.11.1] - 2026-07-27
+
+### Modifié
+
+- **Cadence de rotation configurable.** La durée d'affichage d'une page de la zone
+  des services est désormais réglable via `SERVICES_ROTATE_SECONDS` dans
+  `config.py` (défaut 6 s), au lieu d'être codée en dur.
+
+## [1.11.0] - 2026-07-27
+
+### Ajouté
+
+- **Rotation automatique de la zone des services (bas de l'écran).** Cette zone
+  ne dispose que de six emplacements ; au-delà de six services surveillés, les
+  suivants n'apparaissaient pas. Elle **défile désormais automatiquement** (une
+  page toutes les six secondes), avec de petits points de pagination en bas de
+  l'écran. Les services **en alerte** (pastille rouge ou orange) sont **épinglés**
+  en tête et restent **toujours visibles** ; seuls les services sains défilent
+  dans les emplacements restants. Si toutes les places sont occupées par des
+  alertes, ce sont les alertes qui défilent.
+
 ## [1.10.2] - 2026-07-24
 
 ### Corrigé

@@ -48,6 +48,11 @@ HEIGHT = 320
 
 UPDATE_INTERVAL = 2
 
+# Zone des services (bas de l'écran) : 6 emplacements. Au-delà, l'affichage
+# défile automatiquement. Durée d'affichage d'une page, en secondes. Les
+# services en alerte restent épinglés en tête (voir display.py).
+SERVICES_ROTATE_SECONDS = 6
+
 # Pilote d'écran : "ili9341" ou "st7789".
 DISPLAY_DRIVER = "st7789"
 

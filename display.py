@@ -5,11 +5,16 @@ Gestion de l'affichage du Dashboard.
 Aucune dépendance au matériel : uniquement Pillow.
 """
 
+import time
+
 from PIL import Image, ImageDraw
 
 from config import (
     WIDTH,
     HEIGHT,
+    GREEN,
+    GRAY,
+    SERVICES_ROTATE_SECONDS,
     FONT_SIZE,
     TITLE_FONT_SIZE,
     FONT_ANTIALIAS,
@@ -165,10 +170,28 @@ class DashboardDisplay:
             text = text[:-1]
         return (text + ".") if text else ""
 
+    @staticmethod
+    def _is_alert(svc):
+        # En alerte = pastille ni verte (ok) ni grise (inconnu / non supervise).
+        # Un service rouge (hors ligne / erreur) ou orange (avertissement) l'est.
+        return svc.get("color") not in (GREEN, GRAY)
+
+    def _page_dots(self, draw, page, pages):
+        # Petits points de pagination centres tout en bas : signalent la rotation.
+        r = 2
+        gap = 8
+        x0 = (WIDTH - pages * gap) // 2 + gap // 2
+        y = 313
+        for p in range(pages):
+            cx = x0 + p * gap
+            draw.ellipse((cx - r, y - r, cx + r, y + r),
+                         fill="white" if p == page else "#444")
+
     def _services(self, draw, info):
-        # Zone en DEUX colonnes : jusqu'a 6 surveillances (3 par colonne).
-        # Chaque service porte deja son libelle et sa couleur de pastille
-        # (resolus dans systeminfo) ; l'affichage n'a plus qu'a les disposer.
+        # Zone en DEUX colonnes : 6 emplacements (3 par colonne). S'il y a plus de
+        # services que de place, les ALERTES restent epinglees (toujours visibles)
+        # et les services sains defilent automatiquement dans les cases restantes.
+        # Chaque service porte deja son libelle et sa couleur de pastille.
         services = info.get("services", [])
         ROWS = 3
         y0 = 252
@@ -178,13 +201,35 @@ class DashboardDisplay:
             (128, 226),   # droite
         )
         name_gap = 6
+        capacity = ROWS * len(columns)      # 6
+        ROTATE_SECONDS = SERVICES_ROTATE_SECONDS   # duree d'affichage d'une page (config)
 
-        for i, svc in enumerate(services[:ROWS * len(columns)]):
+        alerts = [s for s in services if self._is_alert(s)]
+        healthy = [s for s in services if not self._is_alert(s)]
+
+        pages = 1
+        page = 0
+        if len(services) <= capacity:
+            shown = alerts + healthy                       # tout tient, alertes en tete
+        elif len(alerts) >= capacity:
+            pages = (len(alerts) + capacity - 1) // capacity
+            page = (int(time.time()) // ROTATE_SECONDS) % pages
+            shown = alerts[page * capacity: page * capacity + capacity]
+        else:
+            free = capacity - len(alerts)                  # places pour les services sains
+            pages = (len(healthy) + free - 1) // free
+            page = (int(time.time()) // ROTATE_SECONDS) % pages
+            shown = alerts + healthy[page * free: page * free + free]
+
+        for i, svc in enumerate(shown[:capacity]):
             name_x, dot_x = columns[i // ROWS]     # 0..2 -> gauche, 3..5 -> droite
             y = y0 + (i % ROWS) * row_h
             label = self._fit(draw, svc.get("label", ""), dot_x - name_x - name_gap)
             draw.text((name_x, y), label, fill="white", font=self.font)
             draw.ellipse((dot_x, y + 2, dot_x + 8, y + 10), fill=svc.get("color", "gray"))
+
+        if pages > 1:
+            self._page_dots(draw, page, pages)
 
 
 if __name__ == "__main__":
