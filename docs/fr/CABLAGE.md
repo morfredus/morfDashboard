@@ -17,8 +17,8 @@ déplacer. Seule différence : le ST7789 n'a pas de sortie MISO (SDO).
 
 | Fonction        | GPIO (BCM) | Broche physique | Constante `config.py` |
 | --------------- | ---------- | --------------- | --------------------- |
-| Alimentation    | 3,3 V      | 1               | —                     |
-| Masse           | GND        | 6               | —                     |
+| Alimentation    | 3,3 V      | 1               | -                     |
+| Masse           | GND        | 6               | -                     |
 | Chip Select     | GPIO8 / CE0| 24              | `CS_PIN` (SPI matériel)|
 | Reset           | GPIO25     | 22              | `RST_PIN`             |
 | Data/Command    | GPIO24     | 18              | `DC_PIN`              |
@@ -39,8 +39,8 @@ Sérigraphie typique (bord du module) : `GND · VCC · SCL · SDA · RES · DC �
 
 | Sérigraphie ST7789 | Signal          | GPIO (BCM) | Broche physique |
 | ------------------ | --------------- | ---------- | --------------- |
-| **GND**            | Masse           | —          | 6               |
-| **VCC**            | Alimentation 3,3 V | —       | 1               |
+| **GND**            | Masse           | -          | 6               |
+| **VCC**            | Alimentation 3,3 V | -       | 1               |
 | **SCL**            | Horloge (SCLK)  | GPIO11     | 23              |
 | **SDA**            | Données (MOSI)  | GPIO10     | 19              |
 | **RES**            | Reset           | GPIO25     | 22              |
@@ -71,8 +71,8 @@ Sérigraphie typique (bord du module) :
 
 | Sérigraphie ILI9341 | Signal          | GPIO (BCM) | Broche physique |
 | ------------------- | --------------- | ---------- | --------------- |
-| **VCC**             | Alimentation 3,3 V | —       | 1               |
-| **GND**             | Masse           | —          | 6               |
+| **VCC**             | Alimentation 3,3 V | -       | 1               |
+| **GND**             | Masse           | -          | 6               |
 | **CS**              | Chip Select (CE0)| GPIO8     | 24              |
 | **RESET**           | Reset           | GPIO25     | 22              |
 | **DC**              | Data/Command    | GPIO24     | 18              |
@@ -100,7 +100,7 @@ Sérigraphie typique (bord du module) :
 ## Rappel de l'en-tête GPIO (broches utilisées)
 
 ```
-        Raspberry Pi — connecteur 40 broches (extrait)
+        Raspberry Pi - connecteur 40 broches (extrait)
     3V3  (1) ● ● (2)  5V
          (3) ● ● (4)  5V
          (5) ● ● (6)  GND      ◄ Masse écran

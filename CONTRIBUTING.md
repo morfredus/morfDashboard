@@ -10,7 +10,7 @@ dashboard for the Raspberry Pi on a tiny SPI screen. Contributions that keep it
   clarity over features.
 - **Standard library first.** The only runtime dependencies are `Pillow` and
   `psutil` (see `requirements.txt`). New third-party dependencies should be a
-  last resort — the network listener (`beacon_listener.py`), for example, uses
+  last resort - the network listener (`beacon_listener.py`), for example, uses
   the standard library only.
 - **Configuration in one place.** User-facing settings (thresholds, drivers,
   monitored services, watched apps, pin-out) live in `config.py`.

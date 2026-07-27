@@ -6,20 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
-## [1.10.2] — 2026-07-24
+## [1.10.2] - 2026-07-24
 
 ### Corrigé
 
 - **L'écran n'est pas un OLED.** Plusieurs commentaires et une entrée de journal
   décrivaient « l'écran OLED » du dashboard, alors qu'il pilote une dalle **LCD
-  SPI (ILI9341 / ST7789)** — ce que le README dit par ailleurs explicitement en
+  SPI (ILI9341 / ST7789)** - ce que le README dit par ailleurs explicitement en
   rappelant que le burn-in est « essentiellement un phénomène OLED », donc sans
   objet ici. Corrigé dans `service.py`, `beacon_emitter.py`,
   `scripts/linux/install-service.sh` et l'entrée de la 1.8.0. Les deux mentions
   d'OLED du README et du journal qui parlent du burn-in sont, elles, exactes et
   conservées.
 
-## [1.10.1] — 2026-07-24
+## [1.10.1] - 2026-07-24
 
 ### Corrigé
 
@@ -27,18 +27,18 @@ file at the repository root).
   arrêtait, recopiait puis relançait sans jamais se demander s'il y avait
   quelque chose à déployer. `rsync` sait pourtant dire, à blanc, ce qu'il
   changerait : quand il ne changerait rien et que la configuration est en place,
-  la mise à jour s'arrête en le disant — et en précisant que le service n'a
+  la mise à jour s'arrête en le disant - et en précisant que le service n'a
   **pas** été redémarré. `--force` passe outre. Sans `rsync`, on déploie comme
   avant : mieux vaut un redémarrage inutile qu'une mise à jour silencieusement
   omise. Le `git pull` passe avant l'arrêt, puisqu'il n'a jamais eu besoin que
-  le service soit stoppé — et qu'il faut le code final pour savoir s'il y a
+  le service soit stoppé - et qu'il faut le code final pour savoir s'il y a
   quelque chose à faire.
 
-## [1.10.0] — 2026-07-24
+## [1.10.0] - 2026-07-24
 
 ### Ajouté
 
-- **`service.py` — morfDashboard expose enfin l'interface commune du parc**
+- **`service.py` - morfDashboard expose enfin l'interface commune du parc**
   (`install`, `update`, `uninstall`, `status`, `is-installed`). Il restait le
   seul service piloté par ses scripts shell, et ce cas particulier avait un
   coût invisible : `morf.py upgrade` récupérait son nouveau code puis laissait
@@ -46,11 +46,11 @@ file at the repository root).
   interroger. morfTools peut désormais s'en tenir à une règle sans exception :
   un projet qui est un service porte un `service.py`.
 
-  Ce fichier ne réimplémente rien — il traduit une interface. Le déploiement
+  Ce fichier ne réimplémente rien - il traduit une interface. Le déploiement
   reste entièrement dans `scripts/linux/`, qui connaît le rsync, ses exclusions,
   la configuration locale et l'unité systemd : la connaissance du projet reste
   dans le projet. `update` délègue avec `--no-pull`, parce que récupérer le code
-  est le travail de morfTools et déployer celui du projet — le même partage que
+  est le travail de morfTools et déployer celui du projet - le même partage que
   pour les services morfdeploy, dont l'`update` ne fait pas de `git pull` non
   plus.
 
@@ -59,7 +59,7 @@ file at the repository root).
   gestionnaire de services qui fait autorité. Sur une machine qui n'est pas sous
   Linux, la réponse est « absent » et les autres actions expliquent pourquoi.
 
-## [1.9.0] — 2026-07-22
+## [1.9.0] - 2026-07-22
 
 ### Modifié
 
@@ -70,7 +70,7 @@ file at the repository root).
   documentation et les références du parc suivent. Aucun changement de
   comportement : mêmes fichiers, même service, même port 8791.
 
-## [1.8.1] — 2026-07-22
+## [1.8.1] - 2026-07-22
 
 ### Corrigé
 
@@ -86,7 +86,7 @@ file at the repository root).
 
 ## [Non publié]
 
-## [1.7.3] — 2026-07-20
+## [1.7.3] - 2026-07-20
 
 ### Corrigé
 
@@ -98,8 +98,8 @@ file at the repository root).
 - **Les services disparaissaient de la partie basse de l'écran.** Ils
   s'affichaient brièvement puis laissaient la place à une liste vide. Le mode
   dégradé ne se déclenchait que si morfMonitor était **injoignable** ; un
-  morfMonitor qui répond mais n'a chargé **aucune configuration** — donc ne
-  supervise rien — passait pour une réponse valide, et l'écran se vidait sans la
+  morfMonitor qui répond mais n'a chargé **aucune configuration** - donc ne
+  supervise rien - passait pour une réponse valide, et l'écran se vidait sans la
   moindre alerte. Répondre n'est pas savoir : une réponse ne déclarant aucun
   service systemd ni aucune sonde est désormais jugée dégénérée, et le Dashboard
   replie sur sa collecte locale. Un superviseur muet est pire qu'un superviseur
@@ -114,7 +114,7 @@ file at the repository root).
 - **Mode dégradé automatique.** Si morfMonitor est arrêté, en cours de
   démarrage ou injoignable, le Dashboard reprend sa collecte locale, et revient
   au mode normal dès que le service répond. **Aucun redémarrage n'est
-  nécessaire** — ce qui compte, puisque c'est pendant un incident qu'on regarde
+  nécessaire** - ce qui compte, puisque c'est pendant un incident qu'on regarde
   l'écran. Après un échec, le client attend 10 s avant de retenter : marteler un
   service arrêté ne le rallume pas et figerait l'affichage à chaque tentative.
 - **Champ `source`** dans `get_system_info()` : vaut `morfMonitor` ou `local`,
@@ -146,7 +146,7 @@ file at the repository root).
 
 - L'ancienne collecte locale est conservée intégralement sous
   `_get_system_info_local()` : elle n'est plus le chemin nominal, mais reste le
-  filet de sécurité. La couleur des pastilles reste au Dashboard — morfMonitor
+  filet de sécurité. La couleur des pastilles reste au Dashboard - morfMonitor
   fournit des faits (actif / inactif / en attente), pas des choix graphiques.
 
 ### Limitations connues
@@ -157,9 +157,9 @@ file at the repository root).
   réseau n'y apparaît que si sa clé figure aussi dans `SERVICE_LABELS`,
   contrainte héritée de l'implémentation d'origine.
 
-## [1.7.2] — 2026-07-17
+## [1.7.2] - 2026-07-17
 
-### Changed — robust service config and update flow
+### Changed - robust service config and update flow
 
 - `config.py` now loads optional local overrides from
   `MORFDASHBOARD_CONFIG`, `/etc/morfdashboard/config.local.py`, then
@@ -172,27 +172,27 @@ file at the repository root).
   was running before the update.
 - Added `config.local.example.py` as the template for local overrides.
 
-## [1.7.0] — 2026-07-16
+## [1.7.0] - 2026-07-16
 
-### Added — presence sensor as an extra wake source (morfSensor)
+### Added - presence sensor as an extra wake source (morfSensor)
 
 - The screen can now be woken by a **presence sensor** (LD2410C radar, etc.)
   **in addition to** SSH activity. The dashboard does **not** drive any sensor:
   it queries the autonomous **morfSensor** service over HTTP and reads the
   `present` boolean.
-- New module **`presence_sensor.py`** — `presence_detected()` does a short,
+- New module **`presence_sensor.py`** - `presence_detected()` does a short,
   non-blocking `GET` on morfSensor's `/presence`; any error (service down,
   timeout) returns `False`, so the historical SSH-only behaviour is preserved.
-- **`config.py`** — new `PRESENCE_SENSOR_ENABLED`, `PRESENCE_SENSOR_URL`
+- **`config.py`** - new `PRESENCE_SENSOR_ENABLED`, `PRESENCE_SENSOR_URL`
   (`http://127.0.0.1:8788/presence`), `PRESENCE_SENSOR_TIMEOUT`.
-- **`dashboard.py`** — in the main loop, a detected presence refreshes
+- **`dashboard.py`** - in the main loop, a detected presence refreshes
   `last_active` just like SSH activity.
 - morfSensor also announces itself via morfBeacon, so `beacon_status.py`
   discovers it with no configuration.
 
-## [1.6.1] — 2026-07-15
+## [1.6.1] - 2026-07-15
 
-### Changed — systemd unit renamed to `morfdashboard`
+### Changed - systemd unit renamed to `morfdashboard`
 
 - The systemd service is now named **`morfdashboard`** (was `dashboard`), for
   ecosystem consistency. Updated: the unit file (`scripts/linux/morfdashboard.service`),
@@ -202,9 +202,9 @@ file at the repository root).
 - The **old `dashboard` service must be removed manually** before/after
   installing the new one (see chat / project notes).
 
-## [1.6.0] — 2026-07-15
+## [1.6.0] - 2026-07-15
 
-### Added — robust systemd install
+### Added - robust systemd install
 
 - **`scripts/linux/install-service.sh`** installs the app into a **fixed location**
   (`/opt/morfdashboard`), independent of where the git clone lives. Moving or
@@ -213,7 +213,7 @@ file at the repository root).
   (running as the current user, pointing at the fixed dir), enables and starts it,
   and flags any leftover autostart (crontab, `rc.local`, desktop autostart).
 - **`scripts/linux/update-service.sh`**: `git pull`, re-copy to the fixed dir,
-  restart — no compilation (Python).
+  restart - no compilation (Python).
 - The unit name stays **`dashboard`** (the one the dashboard monitors).
 
 ### Changed
@@ -221,9 +221,9 @@ file at the repository root).
 - Removed the repository-root `dashboard.service` with its hardcoded path (the
   source of the fragility). The parametrized unit now lives in `scripts/linux/`.
 
-## [1.5.0] — 2026-07-14
+## [1.5.0] - 2026-07-14
 
-### Added — standby (screensaver) mode
+### Added - standby (screensaver) mode
 
 An anti-burn-in / power-saving standby screen that takes over from the dashboard
 after a period of inactivity, with **software presence** detection (no sensor
@@ -235,7 +235,7 @@ yet). Numbered summary of the changes:
    `SCREENSAVER_ENABLED = False`. A start-up grace keeps the dashboard visible
    right after boot (no immediate standby when no one is connected yet).
 2. **Presence from SSH activity (`activity.py`).** New module reading the most
-   recent mtime of the `/dev/pts/*` pseudo-terminals — the same signal as the
+   recent mtime of the `/dev/pts/*` pseudo-terminals - the same signal as the
    `IDLE` column of `w`. It does not depend on the utmp `host` field (sometimes
    empty), which makes detection reliable.
 3. **Backlight dimming (software PWM).** `st7789.py` / `ili9341.py` now expose
@@ -248,7 +248,7 @@ yet). Numbered summary of the changes:
    (green/orange/red against `TEMP_*`), **P** CPU load on **4 levels**
    (green < `CPU_ELEVATED` 50 % · yellow · orange ≥ `CPU_WARNING` · red ≥
    `CPU_CRITICAL`), **S** services (green if all up, orange if at least one is
-   down — never red; the `dashboard` service is excluded from the test since it
+   down - never red; the `dashboard` service is excluded from the test since it
    is necessarily running). New threshold `CPU_ELEVATED` in `config.py`.
 5. **Standby-frame legibility.** A letter (**G / P / S**) is drawn above each dot
    in an intermediate font size and in the uptime colour; the clock is softened
@@ -261,10 +261,10 @@ These screens are LCD panels (ST7789 / ILI9341): true permanent burn-in is an
 OLED phenomenon, so here the main gain is the reduced backlight (power draw and
 LED lifespan), the moving frame guarding only against transient retention.
 
-## [1.4.0] — 2026-07-13
+## [1.4.0] - 2026-07-13
 
 ### Added
-- **`beacon_status.py`** — an SSH-run CLI that discovers the live morfBeacon apps
+- **`beacon_status.py`** - an SSH-run CLI that discovers the live morfBeacon apps
   on the LAN, queries their `/status` endpoint and prints their detailed metrics,
   producing a human-friendly **Markdown report** (`beacon_status.md`). The
   headless screen only shows presence; this tool gives the detail on demand.
@@ -273,7 +273,7 @@ LED lifespan), the moving frame guarding only against transient retention.
 - `beacon_listener.py` now sets `SO_REUSEPORT` (best-effort) so the dashboard
   service and `beacon_status.py` can listen on port `45454` at the same time.
 
-## [1.3.0] — 2026-07-13
+## [1.3.0] - 2026-07-13
 
 ### Changed
 - **Documentation overhaul and bilingual layout.** Following the convention of
@@ -288,17 +288,17 @@ LED lifespan), the moving frame guarding only against transient retention.
 ### Added
 - `CONTRIBUTING.md`.
 
-## [1.2.1] — 2026-07-13
+## [1.2.1] - 2026-07-13
 
 ### Changed
 - **Self-monitoring of the dashboard.** The local systemd service `dashboard` is
   now shown among the monitored items (green dot while it runs as a service), via
   `SERVICE_LABELS` → `systemctl is-active dashboard`.
 - Removed `componenthub` from the ESP32 side (`SERVICE_LABELS` /
-  `NETWORK_SERVICES`): ComponentHub no longer exists as an ESP32 — it is now
+  `NETWORK_SERVICES`): ComponentHub no longer exists as an ESP32 - it is now
   monitored as a desktop app (morfBeacon heartbeat).
 
-## [1.2.0] — 2026-07-13
+## [1.2.0] - 2026-07-13
 
 ### Added
 - **LAN supervision of the desktop apps (morfBeacon).** The dashboard now listens
@@ -308,7 +308,7 @@ LED lifespan), the moving frame guarding only against transient retention.
   with no heartbeat for `BEACON_OFFLINE_AFTER` seconds (60 s by default) is
   considered offline.
 - New module `beacon_listener.py`: background UDP listener (standard library
-  only). Watched apps configured in `BEACON_APPS` (`config.py`) — adding a future
+  only). Watched apps configured in `BEACON_APPS` (`config.py`) - adding a future
   project is a single line.
 
 ### Changed

@@ -9,7 +9,7 @@
 
 Tableau de bord système pour Raspberry Pi, affiché sur un petit écran
 **ILI9341 ou ST7789 SPI (240 × 320)**. Il donne, en un coup d'œil, l'état de santé
-de la machine : CPU, mémoire, disque, charge, réseau et services — et la
+de la machine : CPU, mémoire, disque, charge, réseau et services - et la
 **présence des applications de bureau** de l'atelier (ComponentHub, SiteWatch…)
 sur le réseau local.
 
@@ -37,7 +37,7 @@ ni écran principal.
     ├────────────────────────────────────┤
     │ DashBoard       ● ComponentH.   ●    │   services systemd (gauche) +
     │ GatewayLab      ● SiteWatch     ●    │   applis de bureau via morfBeacon
-    │ MeteoHub        ●                    │   (droite) — 6 max, noms abrégés
+    │ MeteoHub        ●                    │   (droite) - 6 max, noms abrégés
     └────────────────────────────────────┘
 
 Les **pastilles** changent de couleur selon des seuils :
@@ -85,7 +85,7 @@ pleinement occupés.
 
 ### Services surveillés (systemd / ESP32)
 
-Les services affichés sont définis dans `SERVICE_LABELS` — la **clé** est le nom
+Les services affichés sont définis dans `SERVICE_LABELS` - la **clé** est le nom
 de l'unité, la **valeur** le libellé affiché :
 
 ``` python
@@ -162,17 +162,17 @@ En son absence, `dev` est affiché.
 <img src="docs/images/screensaver.png" alt="Écran de veille" width="240" />
 
 Après `SCREENSAVER_IDLE_SECONDS` (60 s) **sans activité SSH**, le dashboard
-laisse place à un **cadre de veille** minimal — une petite boîte repositionnée à
-chaque rafraîchissement — affichant l'heure, l'uptime et une rangée de trois
+laisse place à un **cadre de veille** minimal - une petite boîte repositionnée à
+chaque rafraîchissement - affichant l'heure, l'uptime et une rangée de trois
 pastilles d'état :
 
--   **G** — global / thermique : 🟢 OK · 🟠 ça chauffe · 🔴 critique
--   **P** — charge processeur (4 niveaux) : 🟢 < 50 % · 🟡 50–70 % · 🟠 70–90 % · 🔴 ≥ 90 %
--   **S** — services : 🟢 tous actifs · 🟠 au moins un hors ligne (jamais rouge ;
+-   **G** - global / thermique : 🟢 OK · 🟠 ça chauffe · 🔴 critique
+-   **P** - charge processeur (4 niveaux) : 🟢 < 50 % · 🟡 50-70 % · 🟠 70-90 % · 🔴 ≥ 90 %
+-   **S** - services : 🟢 tous actifs · 🟠 au moins un hors ligne (jamais rouge ;
     le service `dashboard` est exclu du test)
 
-Le rétroéclairage descend à `SCREENSAVER_BACKLIGHT` et remonte à fond dès que tu
-touches une session SSH. La présence est déduite de l'activité des terminaux SSH
+Le rétroéclairage descend à `SCREENSAVER_BACKLIGHT` et remonte à fond dès qu'une
+session SSH est sollicitée. La présence est déduite de l'activité des terminaux SSH
 (`activity.py`), en attendant un vrai capteur de présence.
 
 ``` python
@@ -192,7 +192,7 @@ temporaire.
 
 L'écran est passif : il n'affiche que la **présence** (en ligne / hors ligne).
 Pour lire les **métriques détaillées** d'une application sans clavier, lancer
-`beacon_status.py` en SSH — il découvre les applis vivantes, interroge leur
+`beacon_status.py` en SSH - il découvre les applis vivantes, interroge leur
 endpoint `/status` et écrit un rapport Markdown lisible (`beacon_status.md`) :
 
 ``` bash
@@ -204,13 +204,13 @@ python3 beacon_status.py --no-file          # console seulement
 
 ## Documentation
 
--   [docs/fr/ARCHITECTURE.md](docs/fr/ARCHITECTURE.md) — structure du projet et rôle des modules
--   [docs/fr/HARDWARE.md](docs/fr/HARDWARE.md) — matériel et brochage
--   [docs/fr/CABLAGE.md](docs/fr/CABLAGE.md) — câblage détaillé
--   [docs/fr/INSTALL.md](docs/fr/INSTALL.md) — installation du service systemd
--   [CHANGELOG.md](CHANGELOG.md) — historique des versions
--   [ROADMAP.md](ROADMAP.md) — évolutions prévues
--   [CONTRIBUTING.md](CONTRIBUTING.md) — guide de contribution
+-   [docs/fr/ARCHITECTURE.md](docs/fr/ARCHITECTURE.md) - structure du projet et rôle des modules
+-   [docs/fr/HARDWARE.md](docs/fr/HARDWARE.md) - matériel et brochage
+-   [docs/fr/CABLAGE.md](docs/fr/CABLAGE.md) - câblage détaillé
+-   [docs/fr/INSTALL.md](docs/fr/INSTALL.md) - installation du service systemd
+-   [CHANGELOG.md](CHANGELOG.md) - historique des versions
+-   [ROADMAP.md](ROADMAP.md) - évolutions prévues
+-   [CONTRIBUTING.md](CONTRIBUTING.md) - guide de contribution
 
 > Index de la documentation : [`docs/fr/`](docs/fr/README.md) (français) ·
 > [`docs/en/`](docs/en/README.md) (anglais).

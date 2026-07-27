@@ -36,10 +36,10 @@
 -   `boot.py` : animation de démarrage.
 -   `display.py` : composition de l'interface.
 -   `screensaver.py` : rendu de l'écran de veille (cadre mobile : heure, uptime,
-    pastilles d'état G/P/S) — anti-marquage et économie d'énergie.
+    pastilles d'état G/P/S) - anti-marquage et économie d'énergie.
 -   `activity.py` : détection d'activité (mtime des `/dev/pts/*` = activité SSH)
     pour déclencher la veille.
--   `presence_sensor.py` : source de réveil **supplémentaire** — interroge le
+-   `presence_sensor.py` : source de réveil **supplémentaire** - interroge le
     service autonome **morfSensor** (`GET /presence`) et renvoie `present`. Le
     dashboard ne pilote aucun capteur ; une présence détectée (radar LD2410C)
     réveille l'écran comme une activité SSH. Tolérant à l'absence du service
@@ -51,7 +51,7 @@
 -   `systeminfo.py` : collecte des informations système.
 -   `beacon_listener.py` : écoute des heartbeats morfBeacon (présence des
     applications de bureau ComponentHub / SiteWatch / futurs outils).
--   `beacon_status.py` : outil CLI (SSH) — découvre les applis vivantes,
+-   `beacon_status.py` : outil CLI (SSH) - découvre les applis vivantes,
     interroge leur `/status` et produit un rapport Markdown des métriques.
 -   `screen.py` : sélection du pilote d'écran selon `config.py`.
 -   `ili9341.py` : pilote matériel ILI9341.

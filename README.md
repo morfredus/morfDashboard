@@ -8,8 +8,8 @@
 ![License](https://img.shields.io/badge/License-GPL--3.0--only-blue)
 
 A system dashboard for the Raspberry Pi, shown on a small **ILI9341 or ST7789 SPI
-screen (240 × 320)**. At a glance it gives the health of the machine — CPU,
-memory, disk, load, network and services — plus the **presence of the workshop's
+screen (240 × 320)**. At a glance it gives the health of the machine - CPU,
+memory, disk, load, network and services - plus the **presence of the workshop's
 desktop apps** (ComponentHub, SiteWatch…) on the local network.
 
 The goal: know the state of the Raspberry in under a second, with no keyboard and
@@ -36,7 +36,7 @@ no main screen.
     ├────────────────────────────────────┤
     │ DashBoard       ● ComponentH.   ●    │   systemd services (left) +
     │ GatewayLab      ● SiteWatch     ●    │   desktop apps via morfBeacon
-    │ MeteoHub        ●                    │   (right) — up to 6, names abbreviated
+    │ MeteoHub        ●                    │   (right) - up to 6, names abbreviated
     └────────────────────────────────────┘
 
 The **dots** change color against thresholds:
@@ -83,7 +83,7 @@ LOAD_WARNING = 100    ;  LOAD_CRITICAL = 150     # % of cores
 
 ### Monitored services (systemd / ESP32)
 
-Displayed services are defined in `SERVICE_LABELS` — the **key** is the unit name,
+Displayed services are defined in `SERVICE_LABELS` - the **key** is the unit name,
 the **value** the displayed label:
 
 ``` python
@@ -135,12 +135,12 @@ root. When absent, `dev` is shown.
 <img src="docs/images/screensaver.png" alt="Standby screen" width="240" />
 
 After `SCREENSAVER_IDLE_SECONDS` (60 s) with **no SSH activity**, the dashboard
-gives way to a minimal **standby frame** — a small box repositioned at every
-refresh — showing the clock, the uptime and a row of three status dots:
+gives way to a minimal **standby frame** - a small box repositioned at every
+refresh - showing the clock, the uptime and a row of three status dots:
 
--   **G** — global / thermal: 🟢 OK · 🟠 hot · 🔴 critical
--   **P** — CPU load (4 levels): 🟢 < 50 % · 🟡 50–70 % · 🟠 70–90 % · 🔴 ≥ 90 %
--   **S** — services: 🟢 all up · 🟠 at least one down (never red; the
+-   **G** - global / thermal: 🟢 OK · 🟠 hot · 🔴 critical
+-   **P** - CPU load (4 levels): 🟢 < 50 % · 🟡 50-70 % · 🟠 70-90 % · 🔴 ≥ 90 %
+-   **S** - services: 🟢 all up · 🟠 at least one down (never red; the
     `dashboard` service is excluded)
 
 The backlight drops to `SCREENSAVER_BACKLIGHT` and returns to full as soon as you
@@ -162,7 +162,7 @@ moving frame only guards against transient retention.
 ## Detailed metrics on demand (SSH)
 
 The screen is passive: it only shows **presence** (online / offline). To read an
-app's **detailed metrics** without a keyboard, run `beacon_status.py` over SSH —
+app's **detailed metrics** without a keyboard, run `beacon_status.py` over SSH -
 it discovers the live apps, queries their `/status` endpoint and writes a
 human-friendly Markdown report (`beacon_status.md`):
 

@@ -46,7 +46,7 @@ canaux de notification, ajouter des services propres à la machine ou désactive
 une option locale. Les dictionnaires (dont `SERVICE_LABELS`) sont fusionnés avec
 les valeurs standard : les services ajoutés par une mise à jour restent affichés.
 
-> Le nom d'unité est **`morfdashboard`** — c'est celui que morfDashboard
+> Le nom d'unité est **`morfdashboard`** - c'est celui que morfDashboard
 > surveille (`config.py` → `systemctl is-active morfdashboard`).
 
 ### Mettre à jour
@@ -100,7 +100,7 @@ Désactiver le démarrage automatique :
 sudo systemctl disable morfdashboard
 ```
 
-## Détection de présence par capteur (optionnel — morfSensor)
+## Détection de présence par capteur (optionnel - morfSensor)
 
 En plus du réveil par activité SSH, le dashboard peut rallumer l'écran quand un
 **capteur de présence** (radar LD2410C, etc.) détecte quelqu'un. Le dashboard
@@ -185,7 +185,7 @@ sudo ./scripts/linux/update-service.sh
 ```
 
 > Un simple `git pull` ne suffit pas : l'application s'exécute depuis
-> `/opt/morfdashboard`, pas depuis le dépôt. La recopie est indispensable —
+> `/opt/morfdashboard`, pas depuis le dépôt. La recopie est indispensable -
 > c'est ce que fait `update-service.sh`.
 
 ## Vérification finale
