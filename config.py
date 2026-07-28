@@ -302,7 +302,7 @@ BEACON_APPS = {
 
 _MORFSYSTEM_DEFAULT_CONFIG = (
     Path(os.environ.get("ProgramData", r"C:\ProgramData"))
-    / "morfSystem" / "morfsystem.json"
+    / "morfsystem" / "morfsystem.json"
     if os.name == "nt"
     else Path("/etc/morfsystem/morfsystem.json")
 )
@@ -376,7 +376,7 @@ def _load_local_config():
     env_path = os.environ.get("MORFDASHBOARD_CONFIG")
     if env_path:
         candidates.append(Path(env_path))
-    candidates.append(Path("/etc/morfdashboard/config.local.py"))
+    candidates.append(Path("/etc/morfsystem/morfdashboard/config.local.py"))
     candidates.append(PROJECT_DIR / "config.local.py")
 
     for path in candidates:

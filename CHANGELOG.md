@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.12.0] - 2026-07-28
+
+### Modifié
+
+- **Config locale sous `/etc/morfsystem/morfdashboard/config.local.py`** (au lieu
+  de `/etc/morfdashboard`), pour un point d'entrée unique dans `/etc`. La config
+  partagée reste `/etc/morfsystem/morfsystem.json`.
+
+
+### Corrigé
+
+- **Casse du chemin Windows de la configuration partagée alignée sur le
+  déploiement.** Le Dashboard cherchait `%ProgramData%/morfSystem/morfsystem.json`
+  (S majuscule) alors que le fichier est installé dans `%ProgramData%/morfsystem/`
+  (minuscule, comme les dossiers de service du parc). Sans effet sur NTFS, mais
+  aligné pour rester cohérent avec morfMonitor et la convention. Linux
+  (`/etc/morfsystem/morfsystem.json`) était déjà correct.
+
 ## [1.11.1] - 2026-07-27
 
 ### Modifié
@@ -104,8 +122,6 @@ file at the repository root).
 
 - **`MORF_APP_DIR` remplace `RD_APP_DIR`**, la variable unique du parc.
   L'ancienne reste reconnue pour ne casser aucune note ni aucun script.
-
-## [Non publié]
 
 ## [1.7.3] - 2026-07-20
 

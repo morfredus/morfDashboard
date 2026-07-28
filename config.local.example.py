@@ -1,6 +1,6 @@
 # Configuration locale morfDashboard.
 #
-# Copier vers /etc/morfdashboard/config.local.py puis adapter. Seules les
+# Copier vers /etc/morfsystem/morfdashboard/config.local.py puis adapter. Seules les
 # constantes a surcharger sont necessaires ici ; config.py fournit les defauts.
 
 # Canaux morfNotify utilises par les alertes persistantes.

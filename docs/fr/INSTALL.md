@@ -39,7 +39,7 @@ le lance. Il signale aussi tout autre lancement automatique résiduel (crontab,
 `rc.local`, autostart) à retirer à la main.
 
 La configuration locale est séparée du code installé :
-`/etc/morfdashboard/config.local.py`. Le script la crée depuis
+`/etc/morfsystem/morfdashboard/config.local.py`. Le script la crée depuis
 `config.local.example.py` si elle n'existe pas encore, puis la conserve lors des
 installations et mises à jour suivantes. Modifier ce fichier pour choisir les
 canaux de notification, ajouter des services propres à la machine ou désactiver
@@ -57,7 +57,7 @@ sudo ./scripts/linux/update-service.sh
 
 Le script arrête d'abord `morfdashboard`, lance `git pull`, recopie
 l'application dans `/opt/morfdashboard`, préserve
-`/etc/morfdashboard/config.local.py`, rafraîchit l'unité systemd puis redémarre
+`/etc/morfsystem/morfdashboard/config.local.py`, rafraîchit l'unité systemd puis redémarre
 le service s'il tournait avant la mise à jour.
 
 ## Vérification
@@ -125,7 +125,7 @@ Si morfSensor est absent ou injoignable, la détection est simplement ignorée :
 le réveil par activité SSH continue de fonctionner. Mettre
 `PRESENCE_SENSOR_ENABLED = False` pour désactiver complètement l'interrogation.
 Pour une installation en service, préférer cette surcharge dans
-`/etc/morfdashboard/config.local.py` afin qu'une mise à jour ne l'écrase pas.
+`/etc/morfsystem/morfdashboard/config.local.py` afin qu'une mise à jour ne l'écrase pas.
 
 ## Commande d'acquittement du badge reboot
 
