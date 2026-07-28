@@ -24,6 +24,26 @@ décalage (`ST7789_X_OFFSET` / `ST7789_Y_OFFSET`).
   CS               8
   Backlight       18
 
+Brochage détaillé de l'écran (SPI0 complet) et sa cohabitation avec le capteur
+de présence LD2410C (UART) sur le même Pi : voir [Câblage](CABLAGE.md). Les deux
+périphériques ne partagent aucun GPIO.
+
+## Capteur de présence (optionnel)
+
+Le dashboard peut réveiller l'écran quand quelqu'un passe devant, en interrogeant
+le service **morfSensor** (radar HLK-LD2410C en UART) sur son endpoint HTTP
+`/presence`. Le capteur est câblé sur le même Pi que l'écran :
+
+  Signal     GPIO (BCM)   Broche physique
+  --------- ------------ -----------------
+  VCC (5 V)  -            2 (ou 4)
+  GND        -            9
+  TX → RXD   GPIO15       10
+  RX ← TXD   GPIO14       8
+
+Détail et configuration UART : `morfSensor/docs/fr/CABLAGE.md`. Activation via
+`PRESENCE_SENSOR_ENABLED` / `PRESENCE_SENSOR_URL` dans `config.py`.
+
 ## SPI
 
 -   Bus : SPI0

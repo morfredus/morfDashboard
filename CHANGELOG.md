@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.12.1] - 2026-07-28
+
+### Documentation
+
+- **Brochage GPIO consolidé écran + capteur** dans [`docs/fr/CABLAGE.md`] : vue
+  d'ensemble du connecteur 40 broches montrant l'écran (SPI) et le capteur de
+  présence LD2410C (UART) sur le même Pi, avec la preuve qu'ils ne partagent
+  aucun GPIO ni aucune broche physique. `docs/fr/HARDWARE.md` gagne une section
+  « Capteur de présence » avec son brochage. Renvois croisés avec
+  `morfSensor/docs/fr/CABLAGE.md`.
+
 ## [1.12.0] - 2026-07-28
 
 ### Modifié

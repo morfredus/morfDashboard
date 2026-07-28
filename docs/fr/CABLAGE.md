@@ -122,6 +122,61 @@ Sérigraphie typique (bord du module) :
 
 ---
 
+## Cohabitation avec le capteur de présence (LD2410C / morfSensor)
+
+Sur le même Raspberry Pi, l'écran (bus **SPI**) et le capteur de présence
+**HLK-LD2410C** (liaison **UART**) partagent le connecteur 40 broches sans
+conflit : ils n'utilisent aucun GPIO en commun. Le dashboard ne lit pas le
+capteur directement, il interroge le service **morfSensor** en HTTP ; côté
+matériel, les deux périphériques sont simplement câblés sur le même en-tête.
+
+Détail complet du capteur : `morfSensor/docs/fr/CABLAGE.md`. Rappel du
+raccordement, pour la vue d'ensemble :
+
+| LD2410C | Signal        | GPIO (BCM)   | Broche physique | Remarque |
+| ------- | ------------- | ------------ | --------------- | -------- |
+| `VCC`   | Alimentation 5 V | -         | 2 (ou 4)        | module alimenté en 5 V, E/S en 3,3 V |
+| `GND`   | Masse         | -            | 9               | une masse distincte de celle de l'écran (broche 6) |
+| `TX`    | UART          | GPIO15 / RXD | 10              | **TX capteur → RX du Pi** (trames de présence) |
+| `RX`    | UART          | GPIO14 / TXD | 8               | RX capteur ← TX du Pi (non requis en lecture seule) |
+
+> ⚠️ Les E/S du LD2410C sont en **3,3 V** : relier `TX`/`RX` directement aux
+> GPIO du Pi. Alimenter en 5 V (broche 2/4), signaux en 3,3 V.
+
+### Pas de recouvrement de broches
+
+| Périphérique | GPIO (BCM) utilisés | Broches physiques |
+| ------------ | ------------------- | ----------------- |
+| Écran (SPI0 + contrôle) | 8, 9, 10, 11, 18, 24, 25 | 12, 18, 19, 21, 22, 23, 24 |
+| Capteur (UART) | 14, 15 | 8, 10 |
+| Alimentation / masse | - | 1 (3,3 V écran), 2 (5 V capteur), 6 (GND écran), 9 (GND capteur) |
+
+Aucun GPIO ni aucune broche physique n'est partagé : les deux montages
+coexistent tels quels.
+
+### En-tête 40 broches (écran + capteur)
+
+```
+        Raspberry Pi - connecteur 40 broches (écran SPI + capteur UART)
+    3V3  (1) ● ● (2)  5V       ◄ (1) VCC écran 3,3 V   · (2) VCC capteur 5 V
+  GPIO2  (3) ● ● (4)  5V
+  GPIO3  (5) ● ● (6)  GND      ◄ (6) Masse écran
+  GPIO4  (7) ● ● (8)  GPIO14   ◄ (8) TXD Pi → RX capteur (option, lecture seule)
+    GND  (9) ● ● (10) GPIO15   ◄ (9) Masse capteur · (10) RXD Pi ← TX capteur
+ GPIO17 (11) ● ● (12) GPIO18   ◄ (12) BL / rétroéclairage écran
+ GPIO27 (13) ● ● (14) GND
+ GPIO22 (15) ● ● (16) GPIO23
+    3V3 (17) ● ● (18) GPIO24   ◄ (18) DC écran
+ GPIO10 (19) ● ● (20) GND      ◄ (19) MOSI écran (SDA/SDI)
+  GPIO9 (21) ● ● (22) GPIO25   ◄ (21) MISO écran (SDO, ILI9341) · (22) RESET écran
+ GPIO11 (23) ● ● (24) GPIO8    ◄ (23) SCLK écran (SCL/SCK) · (24) CS écran (CE0)
+```
+
+> Le capteur a besoin d'une masse propre : utiliser une **broche GND distincte**
+> de celle de l'écran (par exemple la 9), la broche 6 étant déjà prise.
+
+---
+
 ## Après câblage
 
 1. Activer le SPI : `sudo raspi-config` → *Interface Options* → *SPI* → *Enable*.
