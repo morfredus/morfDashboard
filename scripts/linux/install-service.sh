@@ -53,6 +53,26 @@ echo "Source       : $REPO_ROOT"
 echo "Installation : $APP_DIR"
 echo "Config locale: $CONFIG_FILE"
 
+# --- Dépendances système (Python) ----------------------------------------
+# morfDashboard importe PIL (Pillow), numpy, RPi.GPIO, spidev et psutil. Sur
+# Raspberry Pi OS le Python système est « externally managed » (PEP 668) : ces
+# bibliothèques s'installent par apt, pas par pip. On les pose ici pour que le
+# service démarre sans étape manuelle. Étape TOLÉRANTE : si apt échoue (machine
+# hors ligne, nom de paquet différent selon la version d'OS, ou dépendances déjà
+# présentes), on avertit sans interrompre une installation par ailleurs valide.
+if command -v apt-get >/dev/null; then
+    APT_PKGS=(python3-pil python3-numpy python3-rpi.gpio python3-spidev python3-psutil)
+    echo "Dépendances Python (apt) : ${APT_PKGS[*]}"
+    if ! apt-get install -y --no-install-recommends "${APT_PKGS[@]}"; then
+        echo "[AVERTISSEMENT] Installation apt incomplète des dépendances Python." >&2
+        echo "  Si le service ne démarre pas, installer à la main :" >&2
+        echo "  sudo apt install ${APT_PKGS[*]}" >&2
+    fi
+else
+    echo "[note] apt-get absent : installer manuellement PIL, numpy, RPi.GPIO," >&2
+    echo "       spidev et psutil pour ce Python." >&2
+fi
+
 # --- 1. Arrêter l'ancien lancement ---------------------------------------
 systemctl stop "$SERVICE_NAME" 2>/dev/null || true
 

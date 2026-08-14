@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.13.3] - 2026-08-14
+
+### Ajouté
+
+- **Installation des dépendances Python via apt** dans
+  `scripts/linux/install-service.sh` : Pillow, numpy, RPi.GPIO, spidev et psutil
+  (`python3-pil`, `python3-numpy`, `python3-rpi.gpio`, `python3-spidev`,
+  `python3-psutil`). Sur Raspberry Pi OS, le Python système est « externally
+  managed » (PEP 668), donc pas de pip : ces paquets rendent l'installation du
+  service autosuffisante. Étape tolérante : un échec apt (hors ligne, nom de
+  paquet variable, dépendances déjà présentes) avertit sans interrompre
+  l'installation.
+
 ## [1.13.2] - 2026-08-14
 
 ### Corrigé
