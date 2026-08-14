@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.13.2] - 2026-08-14
+
+### Corrigé
+
+- Suppression du `requirements.txt` **vide**. Il ne déclarait aucune dépendance
+  (celles de morfDashboard - PIL, numpy, RPi.GPIO, spidev, psutil - sont des
+  paquets système, installés via apt sur le Raspberry Pi), mais suffisait à
+  déclencher un `pip install` lors de `morf install` (mode générique), qui
+  échouait sous PEP 668 (`externally-managed-environment`). Le déploiement réel
+  passe par `service.py` (`morf install --services`), inchangé.
+
 ## [1.13.1] - 2026-08-14
 
 ### Ajouté
