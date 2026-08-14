@@ -90,15 +90,26 @@ SPI_DEVICE = 0
 SPI_SPEED = 40_000_000
 
 # ---------------------------------------------------------------------
-# Rétroéclairage (backlight sur LED_PIN)
+# Rétroéclairage (backlight sur LED_PIN / GPIO18)
 # ---------------------------------------------------------------------
-# Le rétroéclairage est piloté par LED_PIN. En PWM on peut faire varier sa
-# luminosité (0 = éteint, 100 = plein) ; sinon c'est du tout-ou-rien. GPIO18
-# supporte le PWM ; ici PWM logiciel (RPi.GPIO), suffisant pour deux niveaux.
-# Passer à pigpio (PWM matériel) plus tard si un léger scintillement apparaît.
+# Le rétroéclairage est piloté par LED_PIN (GPIO18). En PWM on fait varier sa
+# luminosité (0 = éteint, 100 = plein) ; sinon c'est du tout-ou-rien. Ici PWM
+# LOGICIEL (RPi.GPIO), largement suffisant pour des paliers fixes. GPIO18 sait
+# aussi faire du PWM MATÉRIEL (canal PWM0), mais y passer imposerait un pilote
+# sysfs et « dtoverlay=pwm-2chan » dans /boot : à n'envisager que si un
+# scintillement apparaît, inutile pour de simples niveaux discrets.
 BACKLIGHT_PWM = True         # False = tout-ou-rien (>0 allumé, 0 éteint)
 BACKLIGHT_FREQ_HZ = 1000     # fréquence du PWM logiciel
-BACKLIGHT_FULL = 100         # niveau (%) en fonctionnement normal
+
+# Niveaux de rétroéclairage (%), librement paramétrables. Trois paliers
+# couvrent tous les cas : présence, veille, et extinction volontaire.
+BL_ACTIVE = 100    # présence détectée (ou forçage « on » via screenctl.py)
+BL_STANDBY = 15    # veille (écran de veille anti-marquage)
+BL_OFF = 0         # extinction manuelle (forçage « off » via screenctl.py)
+
+# Ancien nom conservé pour compatibilité : les pilotes (st7789/ili9341)
+# initialisent le PWM sur BACKLIGHT_FULL. Le garder aligné sur BL_ACTIVE.
+BACKLIGHT_FULL = BL_ACTIVE
 
 # ---------------------------------------------------------------------
 # Mise en veille (écran de veille anti-marquage / économie d'énergie)
@@ -106,11 +117,35 @@ BACKLIGHT_FULL = 100         # niveau (%) en fonctionnement normal
 # Sans capteur physique, la présence est déduite de l'activité SSH (voir
 # activity.py). Après SCREENSAVER_IDLE_SECONDS sans activité, l'écran bascule
 # sur un cadre minimal mobile (heure, uptime, état global du système) et le
-# rétroéclairage descend à SCREENSAVER_BACKLIGHT. La moindre activité SSH
-# (frappe ou sortie d'une commande) réveille l'écran immédiatement.
+# rétroéclairage descend à BL_STANDBY. La moindre activité SSH (frappe ou
+# sortie d'une commande) réveille l'écran immédiatement.
 SCREENSAVER_ENABLED = True       # False = dashboard permanent, jamais de veille
 SCREENSAVER_IDLE_SECONDS = 60    # délai d'inactivité SSH avant la veille
-SCREENSAVER_BACKLIGHT = 15       # niveau (%) du rétroéclairage en veille
+SCREENSAVER_BACKLIGHT = BL_STANDBY  # compat : niveau (%) du rétroéclairage en veille
+
+# ---------------------------------------------------------------------
+# Commande manuelle du rétroéclairage (forçage auto / on / off)
+# ---------------------------------------------------------------------
+# En plus de la gestion automatique (présence -> BL_ACTIVE, veille -> BL_STANDBY),
+# le rétroéclairage accepte un FORÇAGE manuel persistant, piloté hors ligne par
+# la petite commande screenctl.py :
+#     auto -> morfDashboard décide     on -> toujours allumé     off -> éteint
+# Le mode vit dans ce fichier d'état (une ligne : auto|on|off), source de vérité
+# relue à chaque tour de boucle. Doctrine FS morfSystem : l'état éditable vit
+# sous /var/lib (StateDirectory systemd), jamais dans /etc (lecture seule) ni
+# dans le code. Surchargeable par la variable d'environnement
+# MORFDASHBOARD_BACKLIGHT_STATE (utile pour tester hors du Raspberry).
+if os.name == "nt":
+    _BACKLIGHT_STATE_DEFAULT = (
+        Path(os.environ.get("ProgramData", r"C:\ProgramData"))
+        / "morfsystem" / "morfdashboard" / "backlight.state"
+    )
+else:
+    _BACKLIGHT_STATE_DEFAULT = Path("/var/lib/morfsystem/morfdashboard/backlight.state")
+
+BACKLIGHT_STATE_FILE = Path(
+    os.environ.get("MORFDASHBOARD_BACKLIGHT_STATE", str(_BACKLIGHT_STATE_DEFAULT))
+)
 
 # ---------------------------------------------------------------------
 # Détection de présence par capteur (service morfSensor)

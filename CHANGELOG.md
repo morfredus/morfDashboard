@@ -6,6 +6,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.13.1] - 2026-08-14
+
+### Ajouté
+
+- **Déclaration de la commande `screenctl` pour `activate-cli.sh`** (`cli.manifest`,
+  mode `direct`) : `screenctl` peut désormais être exposée dans `~/.local/bin` par
+  le mécanisme commun de morfTools et appelée depuis n'importe quel dossier.
+  `screenctl.py` reste la propriété de morfDashboard (le mécanisme n'en transfère
+  pas la responsabilité).
+
+## [1.13.0] - 2026-08-13
+
+### Ajouté
+
+- **Luminosité de l'écran en PWM à trois paliers + commande manuelle.** Le
+  rétroéclairage (broche BL sur `GPIO18`) passe d'un simple allumé/éteint à trois
+  niveaux paramétrables dans `config.py` : `BL_ACTIVE` (100 %, présence),
+  `BL_STANDBY` (15 %, veille) et `BL_OFF` (0 %, extinction volontaire). Le PWM
+  reste logiciel (RPi.GPIO), suffisant pour des paliers fixes.
+- **Forçage manuel persistant via `screenctl.py`** (`on` / `off` / `auto` /
+  `status`). Un mode `off` garde l'écran volontairement éteint sans couper le
+  service ; `auto` rend la main à la gestion présence/veille. L'outil est
+  strictement local (aucun réseau, aucun port) : il écrit le mode dans un fichier
+  d'état relu par le service à chaque tour de boucle, effet en quelques secondes
+  sans redémarrage.
+
+### Modifié
+
+- **État du forçage sous `/var/lib/morfsystem/morfdashboard/backlight.state`**
+  (doctrine FS morfSystem : état éditable via `StateDirectory` systemd, ajouté à
+  l'unité). Surchargeable par `MORFDASHBOARD_BACKLIGHT_STATE` pour les tests hors
+  Raspberry. Le contenu (`auto`/`on`/`off`) survit aux redémarrages.
+- **Nouvelles constantes `BL_ACTIVE` / `BL_STANDBY` / `BL_OFF`** dans `config.py`.
+  Les anciens noms `BACKLIGHT_FULL` et `SCREENSAVER_BACKLIGHT` restent définis
+  (alias) pour compatibilité descendante des pilotes et des configs locales.
+
 ## [1.12.1] - 2026-07-28
 
 ### Documentation

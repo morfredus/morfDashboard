@@ -2,7 +2,7 @@
 
 *Read in another language: **English** (this document) · [Français](README.fr.md).*
 
-[![Version](https://img.shields.io/badge/version-1.12.1-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.13.1-blue)](CHANGELOG.md)
 
 ![Platform](https://img.shields.io/badge/Platform-Raspberry%20Pi-C51A4A?logo=raspberrypi)
 ![Python](https://img.shields.io/badge/Python-3-3776AB?logo=python&logoColor=white)
@@ -145,21 +145,44 @@ refresh - showing the clock, the uptime and a row of three status dots:
 -   **S** - services: 🟢 all up · 🟠 at least one down (never red; the
     `dashboard` service is excluded)
 
-The backlight drops to `SCREENSAVER_BACKLIGHT` and returns to full as soon as you
+The backlight drops to `BL_STANDBY` and returns to `BL_ACTIVE` as soon as you
 touch an SSH session. Presence is detected from SSH terminal activity
 (`activity.py`), pending a real presence sensor.
+
+The backlight is driven by **PWM** on `GPIO18` (the BL pin): three configurable
+brightness steps rather than a plain on/off.
 
 ``` python
 SCREENSAVER_ENABLED = True       # False = dashboard always on, never standby
 SCREENSAVER_IDLE_SECONDS = 60    # SSH inactivity before standby
-SCREENSAVER_BACKLIGHT = 15       # backlight (%) in standby
+BL_ACTIVE = 100                  # backlight (%) when present
+BL_STANDBY = 15                  # backlight (%) in standby
+BL_OFF = 0                       # backlight (%) when manually off
 BACKLIGHT_PWM = True             # False = on/off backlight (no dimming)
-BACKLIGHT_FULL = 100
 ```
 
 These are LCD panels (ST7789 / ILI9341): permanent burn-in is essentially an OLED
 issue, so the real win here is the lower backlight (power, LED lifespan); the
 moving frame only guards against transient retention.
+
+### Manual screen control (`screenctl.py`)
+
+On top of the automatic logic, the screen accepts a **persistent manual
+override**, handy to switch it off deliberately at night without stopping the
+service. A small, strictly local command-line tool (no network):
+
+``` bash
+python3 screenctl.py off      # force off (screen deliberately dark)
+python3 screenctl.py on       # force on (stays at full brightness)
+python3 screenctl.py auto     # hand back to automatic management
+python3 screenctl.py status   # show the current mode
+```
+
+The mode (`auto` / `on` / `off`) is written to a state file under
+`/var/lib/morfsystem/morfdashboard/backlight.state` (systemd StateDirectory) and
+re-read by the service on every loop: the command takes effect within seconds,
+without a restart, and **survives reboots**. In `on` mode the standby frame keeps
+moving (anti-burn-in) but without dimming; only `auto` restores the standby drop.
 
 ## Detailed metrics on demand (SSH)
 

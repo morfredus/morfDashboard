@@ -2,7 +2,7 @@
 
 *Lire dans une autre langue : [English](README.md) · **Français** (ce document).*
 
-[![Version](https://img.shields.io/badge/version-1.12.1-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.13.1-blue)](CHANGELOG.md)
 
 ![Plateforme](https://img.shields.io/badge/Plateforme-Raspberry%20Pi-C51A4A?logo=raspberrypi)
 ![Python](https://img.shields.io/badge/Python-3-3776AB?logo=python&logoColor=white)
@@ -173,22 +173,46 @@ pastilles d'état :
 -   **S** - services : 🟢 tous actifs · 🟠 au moins un hors ligne (jamais rouge ;
     le service `dashboard` est exclu du test)
 
-Le rétroéclairage descend à `SCREENSAVER_BACKLIGHT` et remonte à fond dès qu'une
+Le rétroéclairage descend à `BL_STANDBY` et remonte à `BL_ACTIVE` dès qu'une
 session SSH est sollicitée. La présence est déduite de l'activité des terminaux SSH
 (`activity.py`), en attendant un vrai capteur de présence.
+
+Le rétroéclairage est piloté en **PWM** sur `GPIO18` (broche BL) : trois paliers
+de luminosité paramétrables plutôt qu'un simple allumé/éteint.
 
 ``` python
 SCREENSAVER_ENABLED = True       # False = dashboard permanent, jamais de veille
 SCREENSAVER_IDLE_SECONDS = 60    # inactivité SSH avant la veille
-SCREENSAVER_BACKLIGHT = 15       # rétroéclairage (%) en veille
+BL_ACTIVE = 100                  # rétroéclairage (%) en présence
+BL_STANDBY = 15                  # rétroéclairage (%) en veille
+BL_OFF = 0                       # rétroéclairage (%) en extinction manuelle
 BACKLIGHT_PWM = True             # False = rétroéclairage tout-ou-rien (sans variation)
-BACKLIGHT_FULL = 100
 ```
 
 Ce sont des dalles LCD (ST7789 / ILI9341) : le marquage permanent est surtout un
 phénomène OLED ; le vrai gain ici est le rétroéclairage réduit (consommation,
 durée de vie de la LED), le cadre mobile ne servant que contre la rémanence
 temporaire.
+
+### Commande manuelle de l'écran (`screenctl.py`)
+
+En plus de la gestion automatique, l'écran accepte un **forçage manuel
+persistant**, utile pour l'éteindre volontairement la nuit sans couper le
+service. Un petit outil en ligne de commande, strictement local (aucun réseau) :
+
+``` bash
+python3 screenctl.py off      # forçage éteint (écran volontairement noir)
+python3 screenctl.py on       # forçage allumé (reste à pleine lumière)
+python3 screenctl.py auto     # rend la main à la gestion automatique
+python3 screenctl.py status   # affiche le mode courant
+```
+
+Le mode (`auto` / `on` / `off`) est écrit dans un fichier d'état sous
+`/var/lib/morfsystem/morfdashboard/backlight.state` (StateDirectory systemd),
+relu par le service à chaque tour de boucle : la commande prend effet en
+quelques secondes, sans redémarrage, et **survit aux redémarrages**. En forçage
+`on`, le cadre de veille continue de bouger (anti-marquage) mais sans baisse de
+luminosité ; seul `auto` réactive la baisse en veille.
 
 ## Métriques détaillées à la demande (SSH)
 

@@ -19,6 +19,11 @@ User=__RUN_USER__
 Group=__RUN_USER__
 WorkingDirectory=__APP_DIR__
 Environment=MORFDASHBOARD_CONFIG=/etc/morfsystem/morfdashboard/config.local.py
+# État éditable du service (doctrine FS morfSystem) : systemd crée et possède
+# /var/lib/morfsystem/morfdashboard, propriété du user du service. C'est là que
+# vit backlight.state (forçage manuel du rétroéclairage, voir screenctl.py) ;
+# la CLI screenctl.py, lancée par le même utilisateur, y écrit sans privilège.
+StateDirectory=morfsystem/morfdashboard
 ExecStart=/usr/bin/python3 __APP_DIR__/dashboard.py
 Restart=always
 RestartSec=5

@@ -1,0 +1,12 @@
+# Commandes CLI publiques de morfDashboard, exposees dans ~/.local/bin par
+# morfTools/activate-cli.sh (le mecanisme est commun au parc ; le script reste
+# la propriete de morfDashboard).
+#
+# Format, une commande par ligne : <nom-public>  <mode>  <script-relatif>
+#   direct  -> lien symbolique (comportement independant du repertoire courant)
+#   project -> lanceur qui entre dans le projet avant d'executer
+#
+# screenctl.py est eligible au mode direct : il resout son fichier d'etat et sa
+# configuration a partir de son propre emplacement (config.py via __file__), pas
+# du repertoire courant. On peut donc l'invoquer de n'importe ou.
+screenctl   direct   screenctl.py

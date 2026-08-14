@@ -16,12 +16,11 @@ from presence_sensor import presence_detected
 from beacon_listener import start as start_beacon
 import beacon_emitter
 from alert_notifier import AlertNotifier
+from backlight_control import read_mode, effective_backlight
 from config import (
     UPDATE_INTERVAL,
     SCREENSAVER_ENABLED,
     SCREENSAVER_IDLE_SECONDS,
-    SCREENSAVER_BACKLIGHT,
-    BACKLIGHT_FULL,
     PRESENCE_SENSOR_ENABLED,
     BEACON_PORT,
     BEACON_ANNOUNCE,
@@ -59,7 +58,10 @@ def main():
     try:
         # Animation de démarrage
         BootScreen().play(lcd)
-        set_backlight(BACKLIGHT_FULL)
+        # Applique tout de suite le niveau effectif (au boot on n'est pas en
+        # veille) : un forçage « off » posé avant un redémarrage éteint l'écran
+        # dès la fin de l'animation, sans attendre le premier tour de boucle.
+        set_backlight(effective_backlight(asleep=False))
 
         # Grace au demarrage : on part comme si une activite venait d'avoir lieu,
         # pour afficher le dashboard des le boot et ne basculer en veille qu'apres
@@ -91,14 +93,21 @@ def main():
             # Desactivable globalement via SCREENSAVER_ENABLED.
             asleep = SCREENSAVER_ENABLED and idle >= SCREENSAVER_IDLE_SECONDS
 
+            # Le CONTENU reste piloté par la veille (dashboard vs cadre mobile
+            # anti-marquage), indépendamment du forçage manuel : même en forçage
+            # « on », l'écran de veille continue de bouger pour éviter le
+            # marquage. Le forçage n'agit que sur la LUMINOSITE.
             if asleep:
                 image = saver.render(info, screensaver_status(info))
-                set_backlight(SCREENSAVER_BACKLIGHT)
             else:
                 image = ui.render(info)
-                set_backlight(BACKLIGHT_FULL)
 
             lcd.display_image(image)
+
+            # Niveau effectif = combinaison du mode manuel (auto/on/off, relu du
+            # fichier d'état à chaque tour) et de l'état de veille. La commande
+            # screenctl.py prend donc effet en un tour de boucle, sans redémarrage.
+            set_backlight(effective_backlight(asleep, read_mode()))
 
             time.sleep(UPDATE_INTERVAL)
 
