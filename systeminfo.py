@@ -24,7 +24,7 @@ from config import (
     health_color,
 )
 
-from beacon_listener import status as beacon_status
+from beacon_listener import local_status as beacon_local_status
 
 try:
     from reboot_alert import get_reboot_alert
@@ -144,13 +144,40 @@ def _beacon_color(online: bool, state):
     return GREEN
 
 
-def _service_colors(services_section):
+def _is_local_beacon(entry, local_host):
+    """L'entrée beacon appartient-elle à CETTE installation locale ?
+
+    morfDashboard est exclusivement local : il montre l'état de SA machine et des
+    équipements du parc, jamais les services d'un autre poste. La distinction vient
+    du champ `role` du protocole morfBeacon :
+
+      - `host`   : un service tournant sur une machine généraliste. Il n'est local
+                   que s'il tourne sur CETTE machine (host == hostname local).
+      - `device` : un équipement autonome (MeteoHub, capteur ESP32). Il fait partie
+                   du système local où qu'il soit vu, et reste donc affiché.
+
+    Ainsi, sur le Dashboard de pi4fred, les services de pi4dev disparaissent (c'est
+    à morfMonitor, pas au Dashboard, d'avoir la vue d'ensemble du parc), mais
+    MeteoHub reste présent. Un poste éteint n'encombre plus l'écran local d'alertes
+    qui ne le concernent pas.
+    """
+    if entry.get("role", "host") == "device":
+        return True
+    host = entry.get("host")
+    return bool(host) and bool(local_host) and host.lower() == str(local_host).lower()
+
+
+def _service_colors(services_section, local_host=None):
     """Traduit l'état fourni par morfMonitor en pastilles colorées.
 
     La couleur relève de la PRÉSENTATION : morfMonitor fournit des faits
     (actif / inactif / en attente), le Dashboard décide comment les montrer.
     C'est ce partage qui permet à d'autres interfaces d'afficher les mêmes
     données autrement, sans que morfMonitor ait à les connaître.
+
+    `local_host` (nom d'hôte de cette machine, rapporté par morfMonitor) sert à
+    ne garder, parmi les applications beacon, que celles qui sont LOCALES : les
+    services de cette machine et les équipements du parc. Voir `_is_local_beacon`.
     """
     out = []
     for entry in services_section.get("systemd", []):
@@ -173,6 +200,10 @@ def _service_colors(services_section):
         # l'écran est petit, et la configuration reste la source de vérité de ce
         # qui mérite une pastille. Elles restent visibles dans l'API.
         if not entry.get("declared") or not entry.get("enabled", True):
+            continue
+        # Exclusivement local : on écarte les services des autres postes. Un poste
+        # éteint (ses services) ne vient donc plus rougir l'écran local.
+        if not _is_local_beacon(entry, local_host):
             continue
         out.append({
             "label": entry.get("label", entry.get("app", "?")),
@@ -203,8 +234,13 @@ def _get_system_info_local():
             "label": SERVICE_LABELS[key],
             "color": GREEN if online else RED,
         })
+    # Exclusivement local, meme en mode degrade : on ne montre que l'instance
+    # LOCALE d'une application beacon (service sur cette machine, ou equipement du
+    # parc), jamais celle d'un autre poste. Un poste distant eteint ne rougit donc
+    # pas l'ecran local. `local_status` filtre sur le nom d'hote de cette machine.
+    local_host = socket.gethostname()
     for app, label in BEACON_APPS.items():
-        online, state = beacon_status(app)
+        online, state = beacon_local_status(app, local_host)
         services.append({
             "label": label,
             "color": _beacon_color(online, state),
@@ -285,7 +321,12 @@ def get_system_info():
     if MONITOR_ENABLED:
         data = monitor_client.fetch_all(MONITOR_URL, MONITOR_TIMEOUT)
         if data and _monitor_answer_is_usable(data):
-            info = monitor_client.to_dashboard_shape(data, _service_colors)
+            # Le nom d'hôte local vient de morfMonitor lui-meme (il tourne sur
+            # cette machine) : c'est l'autorite sur « qui suis-je », et il sert a
+            # ne garder que les applications beacon locales.
+            local_host = (data.get("system") or {}).get("hostname")
+            info = monitor_client.to_dashboard_shape(
+                data, lambda sec: _service_colors(sec, local_host))
             # Champs qui restent la propriété du Dashboard : sa version, son
             # horloge d'affichage, et son suivi d'accusé de redémarrage.
             info["version"] = VERSION

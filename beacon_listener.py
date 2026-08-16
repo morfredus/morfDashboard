@@ -26,7 +26,12 @@ class BeaconListener:
     def __init__(self, port=BEACON_PORT):
         self._port = port
         self._lock = threading.Lock()
-        self._seen = {}          # app -> {last, state, host, version, ip, status_port}
+        # Indexe par INSTANCE (app, host) et non par seul nom : le meme service
+        # tournant sur deux machines (pi4fred et pi4dev) est deux instances. Les
+        # confondre sous le seul nom les faisait s'ecraser l'une l'autre, et
+        # empechait de distinguer l'instance LOCALE d'une instance distante -- ce
+        # qui est justement ce qu'un dashboard local doit savoir.
+        self._inst = {}          # (app, host) -> {last, state, role, host, version, ip, status_port}
         self._thread = None
 
     def start(self):
@@ -64,34 +69,78 @@ class BeaconListener:
             app = msg.get("app")
             if not app:
                 continue
+            host = msg.get("host")
 
             with self._lock:
-                self._seen[app] = {
+                self._inst[(app, host)] = {
                     "last": time.monotonic(),
                     "state": msg.get("state", "ok"),
-                    "host": msg.get("host"),
+                    # role du protocole morfBeacon : "host" (service sur une machine)
+                    # ou "device" (equipement autonome). Absent => "host", defaut
+                    # historique. Sert au filtrage « local » du dashboard.
+                    "role": msg.get("role", "host"),
+                    "host": host,
                     "version": msg.get("version"),
                     "ip": addr[0],
                     "status_port": int(msg.get("status_port", 0) or 0),
                 }
 
-    def status(self, app):
-        """Retourne (online: bool, state: str|None) pour une application."""
-        with self._lock:
-            entry = self._seen.get(app)
-            if not entry:
-                return False, None
-            online = (time.monotonic() - entry["last"]) <= BEACON_OFFLINE_AFTER
-            return online, entry.get("state")
-
-    def snapshot(self):
-        """Copie {app: {...,'online':bool}} de toutes les applications vues."""
+    def _fresh_instances(self, app):
+        """Instances FRAICHES d'une application (une par machine)."""
         now = time.monotonic()
         with self._lock:
-            return {
-                app: {**entry, "online": (now - entry["last"]) <= BEACON_OFFLINE_AFTER}
-                for app, entry in self._seen.items()
-            }
+            return [dict(e) for (a, _h), e in self._inst.items()
+                    if a == app and (now - e["last"]) <= BEACON_OFFLINE_AFTER]
+
+    def status(self, app):
+        """(online, state) pour 'app', toutes machines confondues.
+
+        En ligne si AU MOINS une instance est fraiche : c'est la vue « ce service
+        tourne-t-il quelque part sur le parc ? », utile a l'outil de diagnostic.
+        """
+        fresh = self._fresh_instances(app)
+        if not fresh:
+            return False, None
+        # Etat de l'instance vue le plus recemment.
+        latest = max(fresh, key=lambda e: e["last"])
+        return True, latest.get("state")
+
+    def local_status(self, app, local_host):
+        """(online, state) pour la seule instance LOCALE de 'app'.
+
+        Locale = un equipement (role device, ou qu'il soit) ou un service tournant
+        sur CETTE machine (host == local_host). Une instance distante ne compte pas :
+        le dashboard est exclusivement local. (False, None) si aucune instance
+        locale n'est fraiche.
+        """
+        candidates = []
+        for e in self._fresh_instances(app):
+            is_device = e.get("role", "host") == "device"
+            is_local = (e.get("host") and local_host
+                        and str(e["host"]).lower() == str(local_host).lower())
+            if is_device or is_local:
+                candidates.append(e)
+        if not candidates:
+            return False, None
+        return True, max(candidates, key=lambda e: e["last"]).get("state")
+
+    def snapshot(self):
+        """Copie {app: {...,'online':bool}} par application (instance la plus fraiche).
+
+        Collapse volontaire des instances vers le nom d'application : l'outil de
+        diagnostic beacon_status.py veut une vue par application, pas par machine.
+        """
+        now = time.monotonic()
+        with self._lock:
+            out = {}
+            for (app, _host), entry in self._inst.items():
+                online = (now - entry["last"]) <= BEACON_OFFLINE_AFTER
+                prev = out.get(app)
+                if prev is None or entry["last"] > prev["_last_raw"]:
+                    out[app] = {**entry, "online": online, "_last_raw": entry["last"]}
+            for e in out.values():
+                e.pop("_last_raw", None)
+            return out
 
 
 # --- Singleton pratique -------------------------------------------------------
@@ -114,3 +163,13 @@ def status(app):
     if _listener is None:
         return False, None
     return _listener.status(app)
+
+
+def local_status(app, local_host):
+    """(online, state) pour la seule instance LOCALE de 'app' (voir la methode).
+
+    (False, None) si l'ecouteur n'est pas demarre.
+    """
+    if _listener is None:
+        return False, None
+    return _listener.local_status(app, local_host)

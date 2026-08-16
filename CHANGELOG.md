@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.14.0] - 2026-08-16
+
+### Modifié
+
+- **Affichage exclusivement local.** Le Dashboard ne montre plus que les services
+  de SA machine et les équipements du parc, jamais les services d'un autre poste.
+  Un poste distant éteint (souvent pi4dev) ne vient donc plus rougir l'écran
+  d'alertes qui ne le concernent pas. La distinction s'appuie sur le nouveau champ
+  `role` du protocole morfBeacon : `host` (service sur une machine, gardé si c'est
+  cette machine) ou `device` (équipement autonome type MeteoHub, toujours gardé).
+  S'applique aux deux modes : via morfMonitor (filtrage de la section beacon) et en
+  repli local (l'écouteur beacon distingue désormais l'instance locale d'une
+  instance distante, par instance `(app, hôte)`).
+
 ## [1.13.3] - 2026-08-14
 
 ### Ajouté
