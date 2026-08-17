@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.15.1] - 2026-08-17
+
+### Ajouté
+
+- **`service.py uninstall --dry-run`** : suit la croissance du contrat commun.
+  morfDashboard expose l'interface du parc manuellement (mécanique propre dans
+  `scripts/linux/`) ; il accepte désormais `--dry-run` sur `uninstall` et décrit
+  ce qui serait retiré sans rien toucher, sur toute plateforme (un balayage
+  `morf uninstall --all --dry-run` passe aussi par ici sous Windows, où il n'y a
+  rien à retirer). Sans cela, un tel balayage échouait sur morfDashboard.
+
 ## [1.15.0] - 2026-08-17
 
 ### Ajouté

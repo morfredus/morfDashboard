@@ -113,10 +113,31 @@ def main(argv: list | None = None) -> int:
         "--backup", metavar="DIR", default="",
         help="uninstall --purge : non supporte par ce projet",
     )
+    parser.add_argument(
+        "--dry-run", action="store_true",
+        help="uninstall : montre ce qui serait retire sans rien toucher",
+    )
     # Accepte et ignore : morfTools passe --repo aux service.py du parc, et
     # refuser l'option ferait echouer un balayage sur une difference de forme.
     parser.add_argument("--repo", default="", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
+
+    # Un dry-run d'uninstall ne touche a rien : il decrit le meme plan que
+    # l'execution reelle, sans privilege, et doit reussir sur toute plateforme
+    # (un balayage `morf uninstall --all --dry-run` passe aussi par ici sous
+    # Windows, ou il n'y a simplement rien a retirer). Traite AVANT le controle
+    # de plateforme et AVANT require_root, comme le dry-run de morfdeploy.
+    if args.action == "uninstall" and args.dry_run:
+        print("Would uninstall morfDashboard")
+        if platform.system() != SUPPORTED:
+            print(f"    not applicable on {platform.system()} (Linux-only service)")
+        elif is_installed():
+            print("    would deregister the service (systemctl disable --now)")
+        else:
+            print(f"    {SERVICE_NAME}.service is not installed here")
+        print("Configuration would be kept (this project does not support --purge).")
+        print("\nNothing was removed (--dry-run).")
+        return 0
 
     if platform.system() != SUPPORTED:
         # `is-installed` doit rester muet et repondre par son code de retour :
