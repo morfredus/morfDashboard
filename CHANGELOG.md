@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.15.0] - 2026-08-17
+
+### Ajouté
+
+- **Pilote d'écran `mock` (écran simulé).** Nouveau `mock_display.py` : au lieu de
+  piloter une dalle SPI, il écrit chaque image dans un PNG (`MOCK_PNG_PATH`, défaut
+  `/var/lib/morfsystem/morfdashboard/screen.png`, repli sur un fichier temporaire si
+  non inscriptible) et, en option, l'affiche dans une fenêtre Tkinter
+  (`MORFDASHBOARD_MOCK_WINDOW=1`). Le rétroéclairage est simulé en assombrissant le
+  PNG (on visualise veille et extinction). Ne dépend que de Pillow.
+- **Repli automatique sans écran SPI.** `screen.py` bascule sur le pilote `mock` quand
+  le pilote matériel choisi ne peut pas s'importer (spidev / RPi.GPIO absents) : sur une
+  machine Linux sans écran, le service **tourne** au lieu de planter et redémarrer en
+  boucle. Le pilote peut aussi être choisi explicitement (`DISPLAY_DRIVER = "mock"`) ou
+  forcé par la variable d'environnement `MORFDASHBOARD_DISPLAY_DRIVER`.
+
 ## [1.14.0] - 2026-08-16
 
 ### Modifié

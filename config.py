@@ -53,8 +53,31 @@ UPDATE_INTERVAL = 2
 # services en alerte restent épinglés en tête (voir display.py).
 SERVICES_ROTATE_SECONDS = 6
 
-# Pilote d'écran : "ili9341" ou "st7789".
-DISPLAY_DRIVER = "st7789"
+# Pilote d'écran : "ili9341", "st7789" ou "mock".
+# "mock" ne touche aucun matériel : il écrit chaque image dans un PNG (et, en
+# option, l'affiche dans une fenêtre). Utile pour développer sur un PC ou faire
+# tourner le service sur une machine Linux SANS écran SPI, sans dépendre de
+# spidev / RPi.GPIO (dont l'absence ferait planter le service en boucle).
+# Surchargé par la variable d'environnement MORFDASHBOARD_DISPLAY_DRIVER : on
+# peut ainsi forcer le mock sans éditer ce fichier (ex. sur un poste de dev).
+# Enfin, screen.py bascule automatiquement sur le mock si le pilote matériel
+# choisi ne peut pas s'importer (spidev/RPi.GPIO absents) : le service tourne
+# quand même, au lieu de planter et redémarrer sans fin.
+DISPLAY_DRIVER = os.environ.get("MORFDASHBOARD_DISPLAY_DRIVER", "st7789")
+
+# --- Pilote mock (écran simulé) --------------------------------------
+# Chemin du PNG où le mock écrit la dernière image affichée. Un client peut le
+# lire pour voir « ce qu'il y aurait à l'écran ». Surchargeable par
+# MORFDASHBOARD_MOCK_PNG. Repli sur un fichier temporaire si non inscriptible.
+MOCK_PNG_PATH = Path(os.environ.get(
+    "MORFDASHBOARD_MOCK_PNG",
+    "/var/lib/morfsystem/morfdashboard/screen.png"))
+
+# Fenêtre live du mock (Tkinter). Éteinte par défaut : un service tourne sans
+# serveur graphique. Mettre MORFDASHBOARD_MOCK_WINDOW=1 pour l'activer sur un
+# poste de dev avec écran. Sans interface graphique disponible, l'option est
+# ignorée sans erreur (le PNG reste écrit).
+MOCK_WINDOW = os.environ.get("MORFDASHBOARD_MOCK_WINDOW", "0") == "1"
 
 # Décalage de la dalle ST7789 (0 pour un panneau 240 × 320 plein cadre ;
 # certaines dalles 240 × 240 demandent un offset, ex. Y = 80).

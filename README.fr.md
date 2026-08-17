@@ -2,7 +2,7 @@
 
 *Lire dans une autre langue : [English](README.md) · **Français** (ce document).*
 
-[![Version](https://img.shields.io/badge/version-1.14.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.15.0-blue)](CHANGELOG.md)
 
 ![Plateforme](https://img.shields.io/badge/Plateforme-Raspberry%20Pi-C51A4A?logo=raspberrypi)
 ![Python](https://img.shields.io/badge/Python-3-3776AB?logo=python&logoColor=white)
