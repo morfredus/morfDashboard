@@ -98,8 +98,15 @@ def main(argv: list | None = None) -> int:
     )
     parser.add_argument(
         "action",
-        choices=("install", "update", "uninstall", "status", "is-installed"),
+        choices=("install", "update", "uninstall", "status", "is-installed", "config"),
         help="Ce qu'il faut faire",
+    )
+    # morfTools appelle « config push --force » / « config merge » sur CHAQUE
+    # service.py du parc. morfDashboard doit accepter ce verbe comme il accepte
+    # deja --repo, sinon un deploiement « replace » du parc echoue ici seul.
+    parser.add_argument(
+        "mode", nargs="?", default="",
+        help="config : 'push' (remplace la config depuis le depot) ou 'merge'",
     )
     parser.add_argument(
         "--force", action="store_true",
@@ -160,6 +167,24 @@ def main(argv: list | None = None) -> int:
             ["systemctl", "--no-pager", "--lines=0", "status", SERVICE_NAME],
             check=False,
         ).returncode
+
+    if args.action == "config":
+        # Config de morfDashboard = un fichier Python (config.local.py), pas un
+        # JSON fusionnable. « merge » (ajouter des cles sans toucher aux valeurs)
+        # n'a donc pas de sens ici : on conserve la config locale et on le dit,
+        # plutot que d'echouer ou d'ecraser en silence.
+        if args.mode == "merge":
+            if not require_root("config"):
+                return 2
+            print("morfDashboard : config Python (config.local.py) ; 'merge' sans "
+                  "objet, configuration locale conservee.")
+            return 0
+        # « push » (defaut) : remplacer la config depuis le depot, avec sauvegarde.
+        # La logique vit deja dans install-service.sh (--refresh-config), source
+        # unique de verite du placement de config ; on la reutilise.
+        if not require_root("config"):
+            return 2
+        return run_script("install-service.sh", ["--refresh-config"])
 
     if not require_root(args.action):
         return 2

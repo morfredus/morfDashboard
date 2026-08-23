@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.15.2] - 2026-08-23
+
+### Corrigé
+
+- `service.py` accepte désormais l'action `config` (`push` / `merge`) comme le
+  reste du parc. Un déploiement `morf install --all` en mode `replace` échouait ici
+  seul (`invalid choice: 'config'`) car morfTools appelle `config push --force`
+  sur chaque `service.py`. `config push` délègue à `install-service.sh
+  --refresh-config` (sauvegarde puis remplace `config.local.py` depuis le dépôt) ;
+  `config merge` est sans objet pour une config Python et conserve la config
+  locale en le signalant.
+
 ## [1.15.1] - 2026-08-17
 
 ### Ajouté
