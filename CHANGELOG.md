@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.15.3] - 2026-08-23
+
+### Ajouté
+
+- **`docs/fr/CONVENTIONS-CABLAGE-PI4.md`** : convention de câblage GPIO complète
+  pour remplacer la nappe 40 broches et le T-Cobbler sur pi4fred (écran ST7789,
+  ventilateur interne, capteur HLK-LD2410C), avec brochage détaillé, connecteurs
+  JST-XH détrompés et règles de sécurité avant mise sous tension.
+
+### Modifié
+
+- Le capteur HLK-LD2410C est désormais documenté avec ses **cinq broches** : la
+  sortie de présence **OUT**, inutilisée en pilotage UART, est câblée dès le
+  prototype sur GPIO23 (broche physique 16, en entrée) pour figer un brochage
+  définitif. Connecteur capteur passé de JST-XH 4 à JST-XH 5, faisceau et vue
+  synthétique du GPIO mis à jour, texte reformulé à l'impersonnel.
+
 ## [1.15.2] - 2026-08-23
 
 ### Corrigé
