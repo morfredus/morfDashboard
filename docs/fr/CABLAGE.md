@@ -139,16 +139,22 @@ raccordement, pour la vue d'ensemble :
 | `GND`   | Masse         | -            | 9               | une masse distincte de celle de l'écran (broche 6) |
 | `TX`    | UART          | GPIO15 / RXD | 10              | **TX capteur → RX du Pi** (trames de présence) |
 | `RX`    | UART          | GPIO14 / TXD | 8               | RX capteur ← TX du Pi (non requis en lecture seule) |
+| `OUT`   | Présence T/R  | GPIO23 (entrée)| 16            | sortie tout-ou-rien (3,3 V) : GPIO libre, sans conflit avec l'écran |
 
-> ⚠️ Les E/S du LD2410C sont en **3,3 V** : relier `TX`/`RX` directement aux
+> ⚠️ Les E/S du LD2410C sont en **3,3 V** : relier `TX`/`RX`/`OUT` directement aux
 > GPIO du Pi. Alimenter en 5 V (broche 2/4), signaux en 3,3 V.
+
+> ℹ️ `OUT` est la présence brute (haut/bas) du module. morfSensor lit l'UART
+> (plus riche) et ne s'en sert pas encore ; elle est câblée sur **GPIO23 (broche
+> 16), en entrée**, pour un repli rapide ou un usage futur. Brochage de référence
+> du parc : `docs/fr/CONVENTIONS-CABLAGE-PI4.md`.
 
 ### Pas de recouvrement de broches
 
 | Périphérique | GPIO (BCM) utilisés | Broches physiques |
 | ------------ | ------------------- | ----------------- |
 | Écran (SPI0 + contrôle) | 8, 9, 10, 11, 18, 24, 25 | 12, 18, 19, 21, 22, 23, 24 |
-| Capteur (UART) | 14, 15 | 8, 10 |
+| Capteur (UART + OUT) | 14, 15, 23 | 8, 10, 16 |
 | Alimentation / masse | - | 1 (3,3 V écran), 2 (5 V capteur), 6 (GND écran), 9 (GND capteur) |
 
 Aucun GPIO ni aucune broche physique n'est partagé : les deux montages
@@ -165,7 +171,7 @@ coexistent tels quels.
     GND  (9) ● ● (10) GPIO15   ◄ (9) Masse capteur · (10) RXD Pi ← TX capteur
  GPIO17 (11) ● ● (12) GPIO18   ◄ (12) BL / rétroéclairage écran
  GPIO27 (13) ● ● (14) GND
- GPIO22 (15) ● ● (16) GPIO23
+ GPIO22 (15) ● ● (16) GPIO23   ◄ (16) OUT capteur (présence T/R, entrée)
     3V3 (17) ● ● (18) GPIO24   ◄ (18) DC écran
  GPIO10 (19) ● ● (20) GND      ◄ (19) MOSI écran (SDA/SDI)
   GPIO9 (21) ● ● (22) GPIO25   ◄ (21) MISO écran (SDO, ILI9341) · (22) RESET écran

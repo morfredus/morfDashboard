@@ -18,6 +18,8 @@ système pour Raspberry Pi affiché sur un petit écran SPI (ILI9341 / ST7789).
 |---|---|
 | [Matériel](HARDWARE.md) | Écran, brochage, bus SPI. |
 | [Câblage](CABLAGE.md) | Câblage détaillé, pas à pas. |
+| [Convention de câblage pi4fred](CONVENTIONS-CABLAGE-PI4.md) | Brochage GPIO figé, connecteurs JST, décompte des fils. |
+| [Fabrication du module pi4fred](FABRICATION-MODULE-PI4.md) | Construire la plaque écran + capteur à fixer sur le boîtier. |
 
 ## Installer et exploiter
 

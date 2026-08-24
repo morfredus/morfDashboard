@@ -6,6 +6,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.15.7] - 2026-08-24
+
+### Modifié
+
+- Photos de fabrication retouchées : légère amélioration (lumière, contraste,
+  saturation, netteté) sur les 13 images ; `01-materiel` et `07-ecran-capteur-monte`
+  recadrées en bas pour retirer un élément hors-sujet.
+
+## [1.15.6] - 2026-08-24
+
+### Ajouté
+
+- **`docs/fr/images/fabrication/`** : les 13 photos de fabrication, renommées et
+  remises dans l'ordre de construction (`01-materiel` … `13-dashboard-services`).
+  Le guide `FABRICATION-MODULE-PI4.md` les affiche désormais réellement.
+
+## [1.15.5] - 2026-08-24
+
+### Ajouté
+
+- **`docs/fr/FABRICATION-MODULE-PI4.md`** : guide de fabrication du module compact
+  écran + capteur à fixer sur le boîtier du Pi (matériel déduit, outillage, étapes
+  illustrées, contrôles avant mise sous tension). Concrétise la convention de
+  `CONVENTIONS-CABLAGE-PI4.md` en plaque soudée démontable.
+- **`docs/fr/images/fabrication/`** : dossier des photos de fabrication avec table
+  de correspondance (13 photos remises dans l'ordre de construction).
+
+### Modifié
+
+- `docs/fr/README.md` : index enrichi des entrées « Convention de câblage
+  pi4fred » (jusqu'ici absente) et « Fabrication du module pi4fred ».
+
+## [1.15.4] - 2026-08-24
+
+### Modifié
+
+- `docs/fr/CABLAGE.md` : ajouter la broche **OUT** du LD2410C dans la vue
+  consolidée écran + capteur (tableau de raccordement, tableau de non-recouvrement
+  et en-tête 40 broches). OUT est câblée sur **GPIO23 (broche physique 16), en
+  entrée**, alignée sur `docs/fr/CONVENTIONS-CABLAGE-PI4.md`. Le brochage capteur
+  est désormais cohérent entre les trois docs.
+
 ## [1.15.3] - 2026-08-23
 
 ### Ajouté
