@@ -23,6 +23,11 @@ try:
 except Exception:
     REBOOT_ALERT_PATTERNS = ("Boot_*",)
 
+try:
+    from config import REBOOT_EXPECTED_FILE
+except Exception:
+    REBOOT_EXPECTED_FILE = Path("/home/morfredus/Logs/.dashboard_expected_reboot")
+
 
 def _uptime_seconds():
     try:
@@ -82,10 +87,33 @@ def current_reboot_report():
     return max(reports, key=lambda path: path.stat().st_mtime)
 
 
+def _consume_expected_marker():
+    """Vrai si un redémarrage/arrêt VOLONTAIRE avait été signalé (bouton).
+
+    Le marqueur est à usage unique : on le supprime dès qu'on le lit, pour qu'il
+    n'acquitte que le boot qui suit l'action volontaire. Un reboot inattendu plus
+    tard ne trouvera aucun marqueur et affichera bien le badge.
+    """
+    try:
+        if REBOOT_EXPECTED_FILE.exists():
+            REBOOT_EXPECTED_FILE.unlink()
+            return True
+    except Exception:
+        pass
+    return False
+
+
 def get_reboot_alert():
     try:
         report = current_reboot_report()
         if report is None or _read_ack() == report.name:
+            return {"active": False, "count": 0, "latest": None, "acknowledged": True}
+
+        # Redémarrage/arrêt volontaire (bouton d'alimentation) : marqueur posé
+        # avant l'action. On acquitte ce boot automatiquement et on consomme le
+        # marqueur, pour ne pas afficher le badge REBOOT sur une action demandée.
+        if _consume_expected_marker():
+            _write_ack(report.name)
             return {"active": False, "count": 0, "latest": None, "acknowledged": True}
 
         latest_time = datetime.fromtimestamp(report.stat().st_mtime)

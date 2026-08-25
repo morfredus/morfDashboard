@@ -6,6 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.5] - 2026-08-25
+
+### Ajouté
+
+- **Avis « Arrêt » / « Redémarrage » affiché à l'écran après un appui bouton.**
+  Quand le bouton d'alimentation déclenche une extinction (appui court) ou un
+  redémarrage (appui long), l'écran montre désormais un avis plein cadre avant
+  que le système ne coupe, au lieu de rester figé sur le dashboard. Le thread du
+  bouton ne dessine jamais lui-même (l'écran SPI appartient à la seule boucle
+  principale) : il pose une consigne via `power_action.py`, la boucle rend l'avis
+  et force le rétroéclairage, puis confirme ; le bouton attend cet affichage
+  (borné à 3 s) avant de couper, sans jamais retarder l'action si l'écran ne
+  répond pas. L'attente de cycle de la boucle devient réactive (pas de 0,1 s)
+  pour afficher l'avis dans la fraction de seconde qui suit l'appui.
+
+## [1.16.4] - 2026-08-25
+
+### Corrigé
+
+- **Le badge REBOOT ne s'affiche plus après une extinction/redémarrage
+  VOLONTAIRE au bouton d'alimentation.** L'alerte de reboot est faite pour
+  signaler un redémarrage *inattendu* ; un appui bouton la déclenchait à tort.
+  `power_button.py` pose désormais un marqueur « reboot attendu »
+  (`REBOOT_EXPECTED_FILE`) juste avant de couper/redémarrer ; au boot suivant,
+  `reboot_alert` le consomme (usage unique) et acquitte automatiquement ce boot.
+  Un reboot réellement inattendu n'a pas de marqueur et affiche bien le badge.
+  Le marqueur est retiré si l'action échoue (la machine ne redémarre pas), pour
+  ne jamais masquer un futur reboot inattendu.
+
 ## [1.16.3] - 2026-08-25
 
 ### Ajouté

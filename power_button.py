@@ -29,6 +29,7 @@ import subprocess
 import threading
 import time
 
+import power_action
 from config import (
     POWER_BUTTON_ENABLED,
     POWER_BUTTON_PIN,
@@ -38,9 +39,40 @@ from config import (
     POWER_BUTTON_POLL_SECONDS,
     POWER_BUTTON_SHUTDOWN_CMD,
     POWER_BUTTON_REBOOT_CMD,
+    REBOOT_EXPECTED_FILE,
 )
 
 _PREFIX = "[power_button]"
+
+#: Délai MAX d'attente de l'affichage de l'avis « Arrêt / Redémarrage » avant de
+#: couper. L'avis est un confort : il ne doit jamais retarder l'action de plus
+#: que ce court instant, même si l'affichage ne répond pas.
+_NOTICE_TIMEOUT = 3.0
+
+
+def _mark_expected_reboot():
+    """Signale que le redémarrage/arrêt qui suit est VOLONTAIRE.
+
+    Pose un marqueur (usage unique) lu au boot suivant par reboot_alert, pour ne
+    pas afficher le badge REBOOT après une action demandée au bouton. Best-effort :
+    un échec d'écriture ne doit jamais empêcher l'extinction.
+    """
+    try:
+        REBOOT_EXPECTED_FILE.parent.mkdir(parents=True, exist_ok=True)
+        REBOOT_EXPECTED_FILE.write_text("power_button\n", encoding="utf-8")
+    except Exception as exc:
+        print(f"{_PREFIX} marqueur reboot attendu non posé : {exc}", flush=True)
+
+
+def _clear_expected_reboot():
+    """Retire le marqueur quand l'action a ÉCHOUÉ (la machine ne redémarre pas).
+
+    Sinon un marqueur oublié acquitterait à tort le prochain reboot inattendu.
+    """
+    try:
+        REBOOT_EXPECTED_FILE.unlink(missing_ok=True)
+    except Exception:
+        pass
 
 
 def _run_system_action(command, label):
@@ -49,13 +81,18 @@ def _run_system_action(command, label):
     Ne lève jamais : un bouton qui n'arrive pas à éteindre doit laisser une trace
     lisible dans le journal, pas planter le thread ni le dashboard.
     """
+    # Poser le marqueur AVANT l'action : le badge REBOOT ne doit pas s'afficher
+    # au boot suivant pour une extinction/redémarrage demandés au bouton.
+    _mark_expected_reboot()
     print(f"{_PREFIX} {label} demandé : {' '.join(command)}", flush=True)
     try:
         result = subprocess.run(command, capture_output=True, text=True)
     except Exception as exc:  # exécutable introuvable, etc.
+        _clear_expected_reboot()   # pas de redémarrage : ne pas laisser le marqueur
         print(f"{_PREFIX} échec du {label} : {exc}", flush=True)
         return
     if result.returncode != 0:
+        _clear_expected_reboot()   # commande refusée : la machine ne redémarre pas
         detail = (result.stderr or result.stdout or "").strip()
         print(f"{_PREFIX} échec du {label} (code {result.returncode}) : {detail}", flush=True)
         print(f"{_PREFIX} vérifier le sudoers NOPASSWD (voir docs/fr/CABLAGE.md).", flush=True)
@@ -102,7 +139,13 @@ class _PowerButton:
                 time.sleep(POWER_BUTTON_POLL_SECONDS)
             held = time.monotonic() - start
             self._fired = True
-            if held >= POWER_BUTTON_LONG_PRESS_SECONDS:
+            reboot = held >= POWER_BUTTON_LONG_PRESS_SECONDS
+            # Confirmer visuellement AVANT de couper. Le bouton ne dessine pas
+            # (l'écran SPI appartient à la boucle principale) : il demande l'avis
+            # et attend qu'il soit affiché, borné par _NOTICE_TIMEOUT.
+            power_action.request("reboot" if reboot else "shutdown")
+            power_action.wait_displayed(_NOTICE_TIMEOUT)
+            if reboot:
                 _run_system_action(list(POWER_BUTTON_REBOOT_CMD), "redémarrage")
             else:
                 _run_system_action(list(POWER_BUTTON_SHUTDOWN_CMD), "extinction")

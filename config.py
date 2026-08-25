@@ -294,6 +294,14 @@ REBOOT_ALERT_PATTERNS = ("Boot_*",)
 REBOOT_ALERT_BOOT_WINDOW_SECONDS = 10 * 60
 REBOOT_ALERT_ACK_FILE = Path("/home/morfredus/Logs/.dashboard_reboot_ack")
 
+# Redémarrage/arrêt VOLONTAIRE (bouton d'alimentation, cf power_button.py).
+# power_button pose ce marqueur juste AVANT de couper/redémarrer ; au boot
+# suivant, reboot_alert le consomme (usage unique) et acquitte automatiquement le
+# boot correspondant, pour ne PAS afficher le badge REBOOT après une extinction
+# ou un redémarrage demandés. Un reboot réellement inattendu n'a, lui, aucun
+# marqueur -> le badge s'affiche normalement.
+REBOOT_EXPECTED_FILE = Path("/home/morfredus/Logs/.dashboard_expected_reboot")
+
 
 def health_color(value, warning, critical):
     """Retourne la couleur de la pastille selon la valeur et ses seuils."""

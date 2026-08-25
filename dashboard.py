@@ -16,6 +16,8 @@ from presence_sensor import presence_detected
 from beacon_listener import start as start_beacon
 import beacon_emitter
 import power_button
+import power_action
+import shutdown_notice
 from alert_notifier import AlertNotifier
 from backlight_control import read_mode, effective_backlight
 from config import (
@@ -26,6 +28,7 @@ from config import (
     BEACON_PORT,
     BEACON_ANNOUNCE,
     BEACON_STATUS_PORT,
+    BL_ACTIVE,
 )
 
 
@@ -79,6 +82,19 @@ def main():
         # Boucle principale
         while True:
 
+            # Bouton d'alimentation : afficher « Arrêt » / « Redémarrage » AVANT
+            # que le système coupe. Le rendu se fait ICI (la boucle possède seule
+            # l'écran SPI) ; on force le rétroéclairage pour que l'avis soit
+            # visible même en veille ou forçage « off », puis on rend la main au
+            # thread du bouton qui exécute la coupure.
+            action = power_action.pending()
+            if action is not None:
+                lcd.display_image(shutdown_notice.render(action))
+                set_backlight(BL_ACTIVE)
+                power_action.mark_displayed()
+                time.sleep(0.4)
+                continue
+
             info = get_system_info()
             alerts.process(info)
 
@@ -117,7 +133,15 @@ def main():
             # screenctl.py prend donc effet en un tour de boucle, sans redémarrage.
             set_backlight(effective_backlight(asleep, read_mode()))
 
-            time.sleep(UPDATE_INTERVAL)
+            # Attente réactive : dormir par petits pas pour afficher un avis
+            # d'arrêt/redémarrage dans la fraction de seconde qui suit l'appui,
+            # au lieu d'attendre la fin du cycle UPDATE_INTERVAL.
+            waited = 0.0
+            while waited < UPDATE_INTERVAL:
+                if power_action.pending() is not None:
+                    break
+                time.sleep(0.1)
+                waited += 0.1
 
     except KeyboardInterrupt:
         print("Arrêt demandé.")
