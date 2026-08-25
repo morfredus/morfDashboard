@@ -26,6 +26,7 @@ déplacer. Seule différence : le ST7789 n'a pas de sortie MISO (SDO).
 | SCLK (horloge)  | GPIO11     | 23              | bus SPI0              |
 | MISO (retour)   | GPIO9      | 21              | bus SPI0 (ILI9341)    |
 | Rétroéclairage  | GPIO18     | 12              | `LED_PIN`             |
+| Bouton alim. (option) | GPIO3 | 5              | `POWER_BUTTON_PIN`    |
 
 > Le **CS (CE0 / GPIO8)** est piloté **en matériel** par le contrôleur SPI.
 > Il ne faut pas le gérer via `RPi.GPIO` (erreur « GPIO not allocated »
@@ -103,7 +104,7 @@ Sérigraphie typique (bord du module) :
         Raspberry Pi - connecteur 40 broches (extrait)
     3V3  (1) ● ● (2)  5V
          (3) ● ● (4)  5V
-         (5) ● ● (6)  GND      ◄ Masse écran
+  GPIO3  (5) ● ● (6)  GND      ◄ (5) bouton alim. (option) · (6) masse écran
          (7) ● ● (8)
          (9) ● ● (10)
         (11) ● ● (12) GPIO18   ◄ BL / LED (rétroéclairage)
@@ -180,6 +181,76 @@ coexistent tels quels.
 
 > Le capteur a besoin d'une masse propre : utiliser une **broche GND distincte**
 > de celle de l'écran (par exemple la 9), la broche 6 étant déjà prise.
+
+---
+
+## Bouton d'alimentation (facultatif)
+
+Un simple bouton-poussoir permet d'éteindre ou de redémarrer proprement le
+Raspberry sans clavier ni SSH. Il est **facultatif** : tant qu'il n'est pas
+monté, la fonction ne fait rien (voir plus bas).
+
+| Fonction        | GPIO (BCM) | Broche physique | Constante `config.py` |
+| --------------- | ---------- | --------------- | --------------------- |
+| Bouton alim.    | GPIO3      | 5               | `POWER_BUTTON_PIN`    |
+| Masse du bouton | GND        | 9 (par ex.)     | -                     |
+
+Câblage : un contact du poussoir sur la **broche 5 (GPIO3)**, l'autre sur une
+**masse** (broche 9 par exemple). Rien d'autre — pas de résistance externe : le
+pull-up interne (renforcé, sur GPIO3, par le pull-up matériel de la ligne) tient
+l'entrée au niveau haut au repos.
+
+```
+   Raspberry Pi
+      broche 5 (GPIO3) ───────┐
+                              [ ] poussoir
+      broche 9 (GND) ─────────┘
+```
+
+Comportement (voir `power_button.py`) :
+
+- **appui court** (< 3 s) → **extinction** propre (`systemctl poweroff`) ;
+- **appui long** (≥ 3 s) → **redémarrage** propre (`systemctl reboot`).
+
+L'action est décidée au **relâchement**, d'après la durée : un maintien
+n'enchaîne jamais les deux. Le seuil est réglable
+(`POWER_BUTTON_LONG_PRESS_SECONDS`), tout comme le pin (`POWER_BUTTON_PIN`) et
+l'activation globale (`POWER_BUTTON_ENABLED`).
+
+> **Pourquoi GPIO3 ?** C'est une entrée libre du poste (voir
+> `CONVENTIONS-CABLAGE-PI4.md`) et c'est le pin de **réveil** du Raspberry Pi :
+> une fois le Pi éteint, un appui sur ce **même bouton** le rallume. Aucun
+> `dtoverlay` n'est nécessaire pour ce réveil.
+
+### Absence de bouton : aucun risque de boucle
+
+En logique active-basse avec pull-up, une ligne **sans bouton** reste au niveau
+haut, donc lue « non pressée » : rien ne se déclenche. C'est le cas au départ,
+avant montage du bouton — il n'y a **aucun** risque d'extinction ou de
+redémarrage en boucle. Garde-fou supplémentaire : `power_button.py` refuse d'agir
+sur une ligne déjà « pressée » au démarrage (câblage flottant, bloqué ou mal
+branché) tant qu'un relâchement n'a pas été observé.
+
+### Droits nécessaires (sudoers)
+
+Le service tourne en utilisateur non-root. Il faut autoriser **uniquement** les
+deux commandes d'arrêt/redémarrage sans mot de passe.
+
+`scripts/linux/install-service.sh` le fait **automatiquement** : il pose
+`/etc/sudoers.d/morfdashboard-power` pour l'utilisateur du service, après l'avoir
+validé par `visudo -c` (jamais de sudoers invalide). La désinstallation
+(`--uninstall`) le retire.
+
+Pose manuelle si besoin (remplacer `morfredus` par l'utilisateur du service) :
+
+```
+# /etc/sudoers.d/morfdashboard-power  (valider avec « sudo visudo -cf »)
+morfredus ALL=(root) NOPASSWD: /usr/bin/systemctl poweroff, /usr/bin/systemctl reboot
+```
+
+Sans ce fichier, `sudo -n` échoue proprement (pas d'attente de mot de passe) et
+le journal du service indique la commande refusée : le dashboard continue de
+tourner normalement, seul le bouton reste sans effet.
 
 ---
 

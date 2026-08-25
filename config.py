@@ -187,6 +187,39 @@ PRESENCE_SENSOR_URL = "http://127.0.0.1:8788/presence"     # endpoint /presence 
 PRESENCE_SENSOR_TIMEOUT = 0.5                              # s ; borne le temps d'attente HTTP
 
 # ---------------------------------------------------------------------
+# Bouton d'alimentation matériel (facultatif)
+# ---------------------------------------------------------------------
+# Un bouton-poussoir câblé entre POWER_BUTTON_PIN et la masse (pull-up interne)
+# permet, sans clavier ni SSH :
+#     appui COURT -> extinction propre (systemctl poweroff)
+#     appui LONG  -> redémarrage propre (systemctl reboot)
+# Voir power_button.py pour la logique, et docs/fr/CABLAGE.md pour le câblage et
+# le sudoers requis.
+#
+# Le bouton est FACULTATIF et tout est tolérant à son absence. En logique
+# active-basse avec pull-up interne, une ligne SANS bouton reste au niveau haut
+# (« non pressé ») : rien ne se déclenche, donc aucun risque de redémarrage en
+# boucle au départ, quand le bouton n'est pas encore monté. Par sécurité
+# supplémentaire, power_button.py refuse d'agir sur une ligne déjà « pressée » au
+# démarrage (câblage flottant ou bloqué) tant qu'un relâchement n'a pas été vu.
+#
+# GPIO3 (broche physique 5) est retenu par défaut : c'est une entrée libre sur
+# pi4fred (voir CONVENTIONS-CABLAGE-PI4.md) et c'est le pin « réveil » du
+# Raspberry Pi -> le MÊME bouton rallume le Pi après une extinction. Ce pin porte
+# un pull-up matériel fixe (ligne I2C SDA au repos), ce qui renforce encore la
+# sécurité anti-déclenchement au repos.
+POWER_BUTTON_ENABLED = True            # False = fonction désactivée, aucun GPIO revendiqué
+POWER_BUTTON_PIN = 3                   # BCM ; GPIO3 = broche physique 5 (réveil du Pi)
+POWER_BUTTON_ACTIVE_LOW = True         # bouton entre le GPIO et la masse (pull-up interne)
+POWER_BUTTON_LONG_PRESS_SECONDS = 3.0  # >= ce seuil = redémarrage ; en dessous = extinction
+POWER_BUTTON_DEBOUNCE_SECONDS = 0.05   # anti-rebond : ignore les micro-parasites
+POWER_BUTTON_POLL_SECONDS = 0.02       # granularité de lecture de l'état du bouton
+# Le service tourne en utilisateur non-root : `sudo -n` échoue proprement (au lieu
+# d'attendre un mot de passe) si le sudoers NOPASSWD n'est pas en place.
+POWER_BUTTON_SHUTDOWN_CMD = ["sudo", "-n", "systemctl", "poweroff"]
+POWER_BUTTON_REBOOT_CMD = ["sudo", "-n", "systemctl", "reboot"]
+
+# ---------------------------------------------------------------------
 # Alertes importantes via morfNotify
 # ---------------------------------------------------------------------
 # Le dashboard reste autonome : il POSTe vers morfNotify si disponible, avec

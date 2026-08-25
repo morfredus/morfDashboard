@@ -27,6 +27,9 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 RUN_USER="${SUDO_USER:-$(logname 2>/dev/null || echo root)}"
 REFRESH_CONFIG=0
 
+# Fichier sudoers du bouton d'alimentation (voir étape dédiée plus bas).
+SUDOERS_POWER="/etc/sudoers.d/morfdashboard-power"
+
 for arg in "$@"; do
     case "$arg" in
         --refresh-config) REFRESH_CONFIG=1 ;;
@@ -43,6 +46,7 @@ if [[ "${1:-}" == "--uninstall" ]]; then
     echo "Désinstallation de $SERVICE_NAME…"
     systemctl disable --now "$SERVICE_NAME" 2>/dev/null || true
     rm -f "$UNIT_DEST"
+    rm -f "$SUDOERS_POWER"
     systemctl daemon-reload
     echo "Service supprimé. (Application $APP_DIR conservée — la retirer : sudo rm -rf $APP_DIR)"
     exit 0
@@ -123,6 +127,35 @@ chmod 0644 "$UNIT_DEST"
 systemctl daemon-reload
 systemctl enable --now "$SERVICE_NAME"
 echo "Service '$SERVICE_NAME' installé (ExecStart -> $APP_DIR/dashboard.py) et démarré."
+
+# --- 4bis. Droits du bouton d'alimentation (sudoers) ---------------------
+# Le bouton facultatif (power_button.py) éteint/redémarre via
+# « sudo -n systemctl poweroff|reboot ». Le service tourne en utilisateur
+# non-root : on autorise UNIQUEMENT ces deux commandes sans mot de passe.
+# Sécurité : on valide le fichier avec « visudo -c » AVANT de le mettre en
+# place — jamais de sudoers invalide, qui casserait sudo sur la machine.
+# Étape tolérante : root garde de toute façon le droit ; sans ce fichier, le
+# bouton reste simplement sans effet (le service, lui, tourne normalement).
+if [[ "$RUN_USER" != "root" ]]; then
+    SUDOERS_LINE="$RUN_USER ALL=(root) NOPASSWD: /usr/bin/systemctl poweroff, /usr/bin/systemctl reboot"
+    SUDOERS_TMP="$(mktemp)"
+    {
+        echo "# Installé par morfDashboard install-service.sh — bouton d'alimentation."
+        echo "# Autorise le service (utilisateur non-root) à éteindre/redémarrer proprement."
+        echo "$SUDOERS_LINE"
+    } > "$SUDOERS_TMP"
+    if command -v visudo >/dev/null && visudo -c -f "$SUDOERS_TMP" >/dev/null 2>&1; then
+        install -m 0440 -o root -g root "$SUDOERS_TMP" "$SUDOERS_POWER"
+        echo "Sudoers bouton installé : $SUDOERS_POWER (poweroff/reboot sans mot de passe)."
+    else
+        echo "[AVERTISSEMENT] sudoers du bouton NON installé (visudo absent ou refus de validation)." >&2
+        echo "  Le bouton n'éteindra/redémarrera pas tant que ce droit manque. À poser à la main :" >&2
+        echo "  echo '$SUDOERS_LINE' | sudo tee $SUDOERS_POWER && sudo chmod 0440 $SUDOERS_POWER" >&2
+    fi
+    rm -f "$SUDOERS_TMP"
+else
+    echo "[note] Service lancé en root : pas de sudoers bouton nécessaire."
+fi
 
 # --- 5. Détecter d'autres démarrages automatiques (à nettoyer à la main) --
 echo

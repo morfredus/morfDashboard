@@ -44,6 +44,25 @@ le service **morfSensor** (radar HLK-LD2410C en UART) sur son endpoint HTTP
 Détail et configuration UART : `morfSensor/docs/fr/CABLAGE.md`. Activation via
 `PRESENCE_SENSOR_ENABLED` / `PRESENCE_SENSOR_URL` dans `config.py`.
 
+## Bouton d'alimentation (optionnel)
+
+Un bouton-poussoir facultatif permet d'éteindre ou de redémarrer proprement le
+Pi sans clavier ni SSH :
+
+- **appui court** → extinction (`systemctl poweroff`) ;
+- **appui long** (≥ 3 s) → redémarrage (`systemctl reboot`).
+
+  Signal        GPIO (BCM)   Broche physique
+  ------------ ------------ -----------------
+  Bouton        GPIO3        5
+  Masse bouton  GND          9 (par ex.)
+
+Un contact du poussoir sur la broche 5 (GPIO3), l'autre sur une masse. GPIO3 est
+aussi le pin de **réveil** du Pi : le même bouton rallume la carte après une
+extinction. Facultatif et sans risque de boucle quand il n'est pas monté.
+Câblage, sudoers requis et détails : [Câblage](CABLAGE.md#bouton-dalimentation-facultatif).
+Activation via `POWER_BUTTON_ENABLED` / `POWER_BUTTON_PIN` dans `config.py`.
+
 ## SPI
 
 -   Bus : SPI0

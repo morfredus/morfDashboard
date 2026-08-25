@@ -272,6 +272,36 @@ multimètre avant le premier raccordement au Pi.
 
 ------------------------------------------------------------------------
 
+## 6bis. Bouton d'alimentation (facultatif)
+
+Un bouton-poussoir facultatif éteint ou redémarre proprement le Pi sans clavier
+ni SSH (appui court = extinction, appui long ≥ 3 s = redémarrage ; voir
+`morfDashboard/power_button.py`).
+
+### Brochage
+
+  Bouton        Raspberry Pi     Broche physique
+  ------------- -------------- -----------------
+  contact A     GPIO3                          **5**
+  contact B     GND               **9** (par ex.)
+
+`GPIO3` (broche 5) est une **entrée libre** du poste, réservée ici au bouton.
+Aucune résistance externe : le pull-up interne (renforcé par le pull-up matériel
+de la ligne I2C SDA, inutilisée) tient l'entrée haute au repos, ce qui évite
+tout déclenchement — et donc toute boucle — quand aucun bouton n'est monté.
+
+C'est aussi le pin de **réveil** du Raspberry Pi : une fois éteint, un appui sur
+le même bouton rallume la carte, sans `dtoverlay`.
+
+### JST-XH 2 --- bouton alimentation
+
+``` text
+1 — GPIO3 (broche 5)
+2 — GND
+```
+
+------------------------------------------------------------------------
+
 ## 7. Faisceau entre le Raspberry Pi et la breadboard
 
 Le ventilateur restant dans le boîtier, le faisceau extérieur ne
@@ -325,7 +355,7 @@ Raspberry Pi 4 — broches utilisées
 
 3V3       (1) ● ● (2)  5V
 GPIO2     (3) ● ● (4)  5V
-GPIO3     (5) ● ● (6)  GND
+GPIO3     (5) ● ● (6)  GND      ◄ (5) bouton alim. (option, réveil Pi)
 GPIO4     (7) ● ● (8)  GPIO14 / TXD ──► RX LD2410C (option)
 GND       (9) ● ● (10) GPIO15 / RXD ◄── TX LD2410C
 GPIO17   (11) ● ● (12) GPIO18 ─────────► BL écran

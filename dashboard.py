@@ -15,6 +15,7 @@ from activity import last_terminal_activity
 from presence_sensor import presence_detected
 from beacon_listener import start as start_beacon
 import beacon_emitter
+import power_button
 from alert_notifier import AlertNotifier
 from backlight_control import read_mode, effective_backlight
 from config import (
@@ -54,6 +55,13 @@ def main():
     # morfMonitor. Emetteur + /status minimal, non bloquant.
     if BEACON_ANNOUNCE:
         beacon_emitter.start(VERSION, BEACON_STATUS_PORT, BEACON_PORT)
+
+    # Bouton d'alimentation matériel FACULTATIF : appui court = extinction propre,
+    # appui long = redémarrage propre. Thread démon dédié (la boucle d'affichage
+    # est trop lente pour chronométrer un appui). Tolérant à l'absence de bouton
+    # comme de RPi.GPIO ; jamais bloquant. Démarré avant l'animation de boot pour
+    # rester utilisable dès l'allumage.
+    power_button.start()
 
     try:
         # Animation de démarrage

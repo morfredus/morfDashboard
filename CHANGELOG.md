@@ -6,6 +6,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.1] - 2026-08-25
+
+### Ajouté
+
+- `install-service.sh` pose désormais **automatiquement** le sudoers du bouton
+  d'alimentation (`/etc/sudoers.d/morfdashboard-power`) autorisant l'utilisateur
+  non-root du service à `systemctl poweroff` / `reboot` sans mot de passe. Le
+  fichier est **validé par `visudo -c` avant** mise en place (jamais de sudoers
+  invalide qui casserait sudo) ; étape tolérante (avertissement + pose manuelle
+  indiquée si `visudo` manque) ; `--uninstall` le retire. Doc `CABLAGE.md` mise à
+  jour en conséquence.
+
+## [1.16.0] - 2026-08-25
+
+### Ajouté
+
+- **Bouton d'alimentation matériel facultatif** (`power_button.py`) : un
+  bouton-poussoir câblé entre un GPIO et la masse permet, sans clavier ni SSH,
+  d'**éteindre** proprement le système par un appui court (`systemctl poweroff`)
+  et de le **redémarrer** proprement par un appui long (≥ 3 s, `systemctl
+  reboot`). Surveillance dans un thread démon dédié ; action décidée au
+  relâchement d'après la durée. Par défaut sur **GPIO3 (broche physique 5)**,
+  qui est aussi le pin de réveil du Pi (le même bouton rallume la carte après
+  extinction). Réglable via `config.py` (`POWER_BUTTON_ENABLED`,
+  `POWER_BUTTON_PIN`, `POWER_BUTTON_LONG_PRESS_SECONDS`...).
+- Documentation du câblage et du GPIO du bouton
+  (`docs/fr/CABLAGE.md`, `docs/fr/HARDWARE.md`, `docs/fr/CONVENTIONS-CABLAGE-PI4.md`),
+  dont le fichier sudoers NOPASSWD à poser pour autoriser poweroff/reboot au
+  service non-root.
+
+### Sécurité
+
+- **Aucun redémarrage/extinction en boucle en l'absence de bouton.** En logique
+  active-basse avec pull-up interne, une ligne sans bouton reste au niveau haut
+  (« non pressée ») : rien ne se déclenche. Garde-fou supplémentaire : la
+  détection refuse d'agir sur une ligne déjà « pressée » au démarrage (câblage
+  flottant, bloqué ou mal branché) tant qu'un relâchement n'a pas été observé.
+- Extinction/redémarrage via `sudo -n` : en l'absence du sudoers, la commande
+  échoue proprement (pas d'attente de mot de passe) et le service continue de
+  tourner ; le bouton reste simplement sans effet.
+
 ## [1.15.7] - 2026-08-24
 
 ### Modifié
