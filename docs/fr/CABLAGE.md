@@ -179,8 +179,12 @@ coexistent tels quels.
  GPIO11 (23) ● ● (24) GPIO8    ◄ (23) SCLK écran (SCL/SCK) · (24) CS écran (CE0)
 ```
 
-> Le capteur a besoin d'une masse propre : utiliser une **broche GND distincte**
-> de celle de l'écran (par exemple la 9), la broche 6 étant déjà prise.
+> **La masse est commune.** Toutes les broches GND du Raspberry Pi sont reliées
+> entre elles : l'écran et le capteur peuvent partager la même masse sans
+> problème. Montage validé en pratique avec une masse commune, fonctionnement
+> parfait. Répartir écran et capteur sur deux broches GND (par ex. 6 et 9) reste
+> possible, mais c'est un simple confort de câblage, jamais une nécessité
+> électrique.
 
 ---
 

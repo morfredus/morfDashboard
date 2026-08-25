@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.2] - 2026-08-25
+
+### Corrigé
+
+- **Doc câblage : la masse est commune.** `docs/fr/CABLAGE.md` affirmait à tort
+  que le capteur de présence exigeait une broche GND distincte de l'écran. Toutes
+  les masses du Raspberry Pi sont reliées entre elles : écran et capteur peuvent
+  partager la même masse (montage validé en pratique, fonctionnement parfait).
+  Répartir sur deux broches GND reste possible, mais c'est un confort de câblage,
+  pas une nécessité électrique.
+
 ## [1.16.1] - 2026-08-25
 
 ### Ajouté
