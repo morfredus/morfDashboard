@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.6] - 2026-08-25
+
+### Corrigé
+
+- **Le Dashboard n'affiche plus que les services de SA machine.** Il montrait
+  aussi des services d'un autre poste du parc : quand les données viennent de
+  morfMonitor (qui, lui, supervise tout le parc), la section des sondes réseau
+  (`network`) inclut des sondes visant des postes distants (pi4dev vu depuis
+  pi4fred, par exemple). Ces entrées portent un champ `host` ; on ne garde
+  désormais que celles visant cette machine (`localhost`, boucle locale, ou
+  même nom d'hôte, suffixe `.local` ignoré) via `_is_local_host`. Les services
+  `systemd` étaient déjà locaux (collectés localement par morfMonitor) et les
+  applications `beacon` déjà filtrées par hôte : le filtre réseau ferme le
+  dernier trou. morfMonitor, lui, garde sa vue parc entière (non modifié).
+
 ## [1.16.5] - 2026-08-25
 
 ### Ajouté

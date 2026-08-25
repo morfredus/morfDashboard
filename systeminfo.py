@@ -144,6 +144,41 @@ def _beacon_color(online: bool, state):
     return GREEN
 
 
+def _short_host(name):
+    """Nom d'hôte comparable : minuscules, sans point final ni suffixe mDNS.
+
+    `pi4fred`, `pi4fred.`, `pi4fred.local` désignent la même machine. On les
+    ramène à `pi4fred` avant comparaison, sinon une sonde locale déclarée en
+    `.local` passerait pour distante.
+    """
+    n = str(name).strip().lower().rstrip(".")
+    return n[:-6] if n.endswith(".local") else n
+
+
+def _is_local_host(host, local_host):
+    """La sonde réseau vise-t-elle CETTE machine, ou un autre poste du parc ?
+
+    morfMonitor sonde des services par nom d'hôte : certains pointent sur cette
+    machine (`localhost`, son propre nom), d'autres sur des postes distants
+    (pi4dev depuis pi4fred, par exemple). Le Dashboard étant exclusivement local,
+    on ne garde que les sondes visant cette machine.
+
+      - hôte vide          -> local par convention (une sonde sans hôte vise le
+                              poste courant) ;
+      - localhost / boucle -> local ;
+      - même nom court que `local_host` (suffixe `.local` ignoré) -> local ;
+      - tout le reste (autre nom, IP d'un autre poste) -> distant, écarté.
+    """
+    if not host:
+        return True
+    h = _short_host(host)
+    if h in ("localhost", "127.0.0.1", "::1", "0.0.0.0"):
+        return True
+    if not local_host:
+        return False
+    return h == _short_host(local_host)
+
+
 def _is_local_beacon(entry, local_host):
     """L'entrée beacon appartient-elle à CETTE installation locale ?
 
@@ -176,8 +211,12 @@ def _service_colors(services_section, local_host=None):
     données autrement, sans que morfMonitor ait à les connaître.
 
     `local_host` (nom d'hôte de cette machine, rapporté par morfMonitor) sert à
-    ne garder, parmi les applications beacon, que celles qui sont LOCALES : les
-    services de cette machine et les équipements du parc. Voir `_is_local_beacon`.
+    ne garder que ce qui est LOCAL : les sondes réseau visant cette machine (voir
+    `_is_local_host`) et, parmi les applications beacon, les services de cette
+    machine et les équipements du parc (voir `_is_local_beacon`). Les services
+    systemd, eux, sont collectés localement par morfMonitor : ils sont déjà tous
+    locaux. Un autre poste du parc n'apparaît donc jamais sur cet écran ; c'est
+    à morfMonitor d'avoir la vue d'ensemble.
     """
     out = []
     for entry in services_section.get("systemd", []):
@@ -189,6 +228,11 @@ def _service_colors(services_section, local_host=None):
         })
     for entry in services_section.get("network", []):
         if not entry.get("enabled", True):
+            continue
+        # Exclusivement local : une sonde réseau vers un AUTRE poste du parc ne
+        # concerne pas cet écran (c'est le rôle de morfMonitor). On ne garde que
+        # les sondes visant cette machine.
+        if not _is_local_host(entry.get("host"), local_host):
             continue
         state = entry.get("state")
         # « pending » n'est pas « hors ligne » : la sonde attend simplement que
