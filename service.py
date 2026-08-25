@@ -33,10 +33,73 @@ import os
 import platform
 import subprocess
 import sys
+import tarfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 LINUX_SCRIPTS = HERE / "scripts" / "linux"
+
+#: Ce qui n'entre JAMAIS dans le bundle source (cf. `package`) : dossiers de
+#: travail/build, et surtout la config PERSONNELLE. La config par défaut
+#: (config.py) fait partie de l'application ; la config locale (config.local.py)
+#: et l'état vivent hors du dépôt (/etc, /var/lib) et ne doivent jamais être
+#: embarqués ni écrasés par une mise à jour.
+_BUNDLE_EXCLUDE_DIRS = {
+    ".git", "__pycache__", "build", "build-mingw", "dist", "out",
+    ".vscode", ".claude", ".codex", ".agents", ".vs", ".pio", ".github", "docs",
+}
+_BUNDLE_EXCLUDE_FILES = {"config.local.py"}
+_BUNDLE_EXCLUDE_SUFFIXES = {".pyc"}
+
+
+def _version() -> str:
+    return (HERE / "VERSION").read_text(encoding="utf-8-sig").splitlines()[0].strip()
+
+
+def do_package(out_dir: Path) -> int:
+    """Produit l'archive source-bundle des fichiers applicatifs distribuables.
+
+    Un projet Python n'a rien à compiler : la « release installable » est une
+    archive des fichiers réellement déployés (le même périmètre que le rsync de
+    install-service.sh), SANS config personnelle ni état. L'archive est
+    déterministe (entrées triées, métadonnées neutralisées) pour que sa somme
+    SHA-256 soit stable d'une reconstruction à l'autre - condition du miroir
+    entre la release morfPackages et la release source.
+    """
+    version = _version()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    bundle = out_dir / f"morfdashboard-{version}-source-bundle.tar.gz"
+
+    files: list[tuple[Path, str]] = []
+    for path in sorted(HERE.rglob("*")):
+        if not path.is_file():
+            continue
+        rel = path.relative_to(HERE)
+        if any(part in _BUNDLE_EXCLUDE_DIRS for part in rel.parts):
+            continue
+        if rel.name in _BUNDLE_EXCLUDE_FILES or path.suffix in _BUNDLE_EXCLUDE_SUFFIXES:
+            continue
+        if rel.name.endswith("_preview.png"):
+            continue
+        files.append((path, rel.as_posix()))
+
+    def _reset(info: tarfile.TarInfo) -> tarfile.TarInfo:
+        # Archive reproductible : ni horodatage, ni propriétaire, ni bruit local.
+        info.mtime = 0
+        info.uid = info.gid = 0
+        info.uname = info.gname = ""
+        return info
+
+    # gzip sans mtime (mtime=0) pour ne pas varier à chaque build.
+    import gzip
+    with open(bundle, "wb") as raw:
+        with gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0) as gz:
+            with tarfile.open(fileobj=gz, mode="w") as tar:
+                for path, arcname in files:
+                    tar.add(path, arcname=arcname, filter=_reset)
+
+    print(f"Bundle source écrit : {bundle} ({len(files)} fichiers, version {version}).")
+    return 0
 
 #: Nom de l'unite systemd. Le meme que dans les scripts shell ; il est repete
 #: ici plutot que devine, parce qu'une deduction silencieusement fausse
@@ -98,9 +161,15 @@ def main(argv: list | None = None) -> int:
     )
     parser.add_argument(
         "action",
-        choices=("install", "update", "uninstall", "status", "is-installed", "config"),
+        choices=("install", "update", "uninstall", "status", "is-installed", "config",
+                 "package"),
         help="Ce qu'il faut faire",
     )
+    # `package` : produit l'archive source-bundle (release installable d'un projet
+    # non compilé). Mêmes options que les service.py morfdeploy du parc, pour que
+    # package-all.py appelle tout le monde de la même façon.
+    parser.add_argument("--target", default="", help="package : nom de la cible (morfproject.json)")
+    parser.add_argument("--out", default="", help="package : dossier de sortie de l'archive")
     # morfTools appelle « config push --force » / « config merge » sur CHAQUE
     # service.py du parc. morfDashboard doit accepter ce verbe comme il accepte
     # deja --repo, sinon un deploiement « replace » du parc echoue ici seul.
@@ -128,6 +197,17 @@ def main(argv: list | None = None) -> int:
     # refuser l'option ferait echouer un balayage sur une difference de forme.
     parser.add_argument("--repo", default="", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
+
+    # `package` : produire l'archive source-bundle. Indépendant de la plateforme
+    # (c'est du tar, pas d'installation systemd) et sans privilège : traité AVANT
+    # la barrière de plateforme et require_root.
+    if args.action == "package":
+        out_dir = Path(args.out).resolve() if args.out else (HERE / "dist")
+        try:
+            return do_package(out_dir)
+        except OSError as exc:
+            print(f"Échec de la création du bundle : {exc}", file=sys.stderr)
+            return 1
 
     # Un dry-run d'uninstall ne touche a rien : il decrit le meme plan que
     # l'execution reelle, sans privilege, et doit reussir sur toute plateforme

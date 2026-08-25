@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.3] - 2026-08-25
+
+### Ajouté
+
+- **Packaging `source-bundle` (release installable d'un projet Python).**
+  `service.py package` produit `morfdashboard-<version>-source-bundle.tar.gz` :
+  l'archive des fichiers applicatifs réellement déployés (même périmètre que le
+  rsync de `install-service.sh`), SANS config personnelle (`config.local.py`
+  exclue) ni état. Archive **déterministe** (entrées triées, horodatage/propriétaire
+  neutralisés, gzip sans mtime) pour une somme SHA-256 stable. `morfproject.json`
+  déclare la cible `source-bundle` (plateforme linux/arm64). Première brique de
+  la mise à jour des projets non compilés via morfUpdate (cf.
+  `.morfredus_travail/Evolution/morfUpdate - strategies d'installation…`).
+
 ## [1.16.2] - 2026-08-25
 
 ### Corrigé

@@ -1,5 +1,13 @@
 {
   "schema_version": 1,
   "project": { "id": "morfDashboard", "type": "service" },
-  "packaging": { "provider": "project", "targets": {} }
+  "packaging": {
+    "provider": "project",
+    "targets": {
+      "source-bundle": {
+        "platform": { "os": "linux", "arch": "arm64" },
+        "package": { "format": "source-bundle", "service": "morfdashboard" }
+      }
+    }
+  }
 }
