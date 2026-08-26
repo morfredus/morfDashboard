@@ -217,10 +217,38 @@ def _service_colors(services_section, local_host=None):
     systemd, eux, sont collectés localement par morfMonitor : ils sont déjà tous
     locaux. Un autre poste du parc n'apparaît donc jamais sur cet écran ; c'est
     à morfMonitor d'avoir la vue d'ensemble.
+
+    Dédoublonnage : un service morfSystem est déclaré À LA FOIS comme unité
+    systemd ET comme application beacon dans morfsystem.json (les deux nourrissent
+    la vue parc de morfMonitor). Sans filtrage, il apparaîtrait deux fois sur cet
+    écran. On privilégie la ligne BEACON — nom d'app canonique (« morfDashboard »
+    plutôt que le libellé systemd « DashBoard ») et état auto-rapporté par le
+    service (un service qui se déclare dégradé passe en orange, ce que systemd,
+    binaire actif/inactif, ne sait pas dire) — et on masque l'unité systemd
+    qu'elle recouvre. Un service sans beacon (morfUpdate) garde sa ligne systemd ;
+    un équipement sans unité (MeteoHub) garde sa ligne beacon. Convention du parc
+    utilisée pour l'appariement : l'unité systemd est le nom d'app en minuscules
+    (« morfdashboard » <-> « morfDashboard »).
     """
     out = []
+
+    # Identités montrées via leur beacon (local, déclaré, activé) : les unités
+    # systemd correspondantes seront masquées pour éviter le doublon.
+    beacon_shown = set()
+    for entry in services_section.get("beacon", []):
+        if not entry.get("declared") or not entry.get("enabled", True):
+            continue
+        if not _is_local_beacon(entry, local_host):
+            continue
+        app = entry.get("app")
+        if app:
+            beacon_shown.add(str(app).strip().lower())
+
     for entry in services_section.get("systemd", []):
         if not entry.get("enabled", True):
+            continue
+        # Doublon avec une application beacon montrée : on garde la ligne beacon.
+        if str(entry.get("unit", "")).strip().lower() in beacon_shown:
             continue
         out.append({
             "label": entry.get("label", entry.get("unit", "?")),
@@ -271,8 +299,16 @@ def _get_system_info_local():
     # ESP32), puis les applications de bureau vues par heartbeat morfBeacon.
     # Chaque entree porte deja son libelle et sa couleur de pastille -> l'affichage
     # n'a plus qu'a les disposer.
+    # Dedoublonnage systemd/beacon (voir `_service_colors`) : un service morf*
+    # est declare comme unite systemd ET comme application beacon dans le fichier
+    # partage. On privilegie la ligne beacon et on masque l'unite systemd de meme
+    # identite (unite = nom d'app en minuscules). morfUpdate, sans beacon, garde
+    # sa ligne systemd.
+    beacon_shown = {str(app).strip().lower() for app in BEACON_APPS}
     services = []
     for key in SERVICE_LABELS:
+        if str(key).strip().lower() in beacon_shown:
+            continue
         online = _service_state(key, network_ready)
         services.append({
             "label": SERVICE_LABELS[key],

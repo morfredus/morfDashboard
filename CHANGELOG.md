@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.7] - 2026-08-26
+
+### Corrigé
+
+- **Plus de doublons dans la liste des services.** Chaque service morfSystem est
+  déclaré à la fois comme unité `systemd` et comme application `beacon` dans
+  `morfsystem.json` (les deux nourrissent la vue parc de morfMonitor) ; le
+  Dashboard affichait donc chaque service deux fois. Il déduplique désormais en
+  privilégiant la ligne beacon (nom d'app canonique, ex. « morfDashboard »
+  plutôt que le libellé systemd « DashBoard », et état auto-rapporté par le
+  service : un service qui se déclare dégradé passe en orange, ce que systemd ne
+  sait pas dire) et masque l'unité systemd de même identité. Appariement par la
+  convention du parc : l'unité systemd est le nom d'app en minuscules
+  (`morfdashboard` <-> `morfDashboard`). Un service sans beacon (morfUpdate)
+  garde sa ligne systemd ; un équipement sans unité (MeteoHub) garde sa ligne
+  beacon ; un service tournant sur un autre poste garde sa seule unité systemd
+  locale. Corrigé dans les deux chemins (données morfMonitor et repli local).
+
 ## [1.16.6] - 2026-08-25
 
 ### Corrigé
