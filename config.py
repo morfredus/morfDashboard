@@ -25,7 +25,7 @@ FONT_BOLD = FONTS_DIR / "DejaVuSansMono-Bold.ttf"
 FONT_SIZE = 14        # texte courant
 TITLE_FONT_SIZE = 12  # bandeau supérieur (en gras)
 
-# Rendu du texte — à juger sur l'écran réel.
+# Rendu du texte - à juger sur l'écran réel.
 FONT_ANTIALIAS = False  # False = bords nets sans lissage (parfois plus lisible en petit)
 FONT_BODY_BOLD = True  # True = texte courant en gras (souvent plus lisible sur petit LCD)
 
@@ -264,7 +264,7 @@ CYAN = "lightblue"
 
 CPU_WARNING = 70
 CPU_CRITICAL = 90
-CPU_ELEVATED = 50   # charge modérée (jaune) — pastille « charge CPU » de la veille
+CPU_ELEVATED = 50   # charge modérée (jaune) - pastille « charge CPU » de la veille
 
 RAM_WARNING = 80
 RAM_CRITICAL = 95

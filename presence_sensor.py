@@ -9,7 +9,7 @@ service autonome morfSensor (endpoint /presence) et lit le champ booléen
 
 Conçu pour être appelé dans la boucle du dashboard : robuste et non bloquant au
 sens où toute erreur (service arrêté, timeout, JSON inattendu) est avalée et
-renvoie False — jamais d'exception qui casserait l'affichage. Aucune dépendance
+renvoie False - jamais d'exception qui casserait l'affichage. Aucune dépendance
 externe (bibliothèque standard seule).
 """
 

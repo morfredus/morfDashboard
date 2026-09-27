@@ -66,7 +66,7 @@ La convention suivante s'applique à tous les montages du poste :
 Soit :
 
 ``` text
-            JST-XH 3 — ALIMENTATION
+            JST-XH 3 - ALIMENTATION
 
               1       2       3
             ┌─────┬─────┬─────┐
@@ -124,8 +124,8 @@ Deux broches conviennent :
 DANS LE BOÎTIER
 
 Raspberry Pi
-   pin 17 — 3V3 ─────► + ventilateur
-   pin 14 — GND ─────► - ventilateur
+   pin 17 - 3V3 ─────► + ventilateur
+   pin 14 - GND ─────► - ventilateur
 ```
 
 Ces deux fils n'ont plus aucune raison de sortir du boîtier.
@@ -195,19 +195,19 @@ proprement l'écran en deux connecteurs.
 #### JST-XH 6 --- signaux écran
 
 ``` text
-1 — SCLK
-2 — MOSI
-3 — RESET
-4 — DC
-5 — CS
-6 — BL
+1 - SCLK
+2 - MOSI
+3 - RESET
+4 - DC
+5 - CS
+6 - BL
 ```
 
 #### JST-XH 2 --- alimentation écran
 
 ``` text
-1 — 3V3
-2 — GND
+1 - 3V3
+2 - GND
 ```
 
 Repérer cette convention sur les deux côtés du faisceau avant toute
@@ -263,11 +263,11 @@ multimètre avant le premier raccordement au Pi.
 ### JST-XH 5 --- LD2410C
 
 ``` text
-1 — 5V
-2 — GND
-3 — TX capteur → RX Pi
-4 — RX capteur ← TX Pi
-5 — OUT présence → GPIO23
+1 - 5V
+2 - GND
+3 - TX capteur → RX Pi
+4 - RX capteur ← TX Pi
+5 - OUT présence → GPIO23
 ```
 
 ------------------------------------------------------------------------
@@ -288,7 +288,7 @@ ni SSH (appui court = extinction, appui long ≥ 3 s = redémarrage ; voir
 `GPIO3` (broche 5) est une **entrée libre** du poste, réservée ici au bouton.
 Aucune résistance externe : le pull-up interne (renforcé par le pull-up matériel
 de la ligne I2C SDA, inutilisée) tient l'entrée haute au repos, ce qui évite
-tout déclenchement — et donc toute boucle — quand aucun bouton n'est monté.
+tout déclenchement - et donc toute boucle - quand aucun bouton n'est monté.
 
 C'est aussi le pin de **réveil** du Raspberry Pi : une fois éteint, un appui sur
 le même bouton rallume la carte, sans `dtoverlay`.
@@ -296,8 +296,8 @@ le même bouton rallume la carte, sans `dtoverlay`.
 ### JST-XH 2 --- bouton alimentation
 
 ``` text
-1 — GPIO3 (broche 5)
-2 — GND
+1 - GPIO3 (broche 5)
+2 - GND
 ```
 
 ------------------------------------------------------------------------
@@ -310,28 +310,28 @@ transporte plus que ce qui est réellement nécessaire.
 ### Alimentation
 
 ``` text
-pin 1  — 3V3
-pin 2  — 5V
-pin 6  — GND
+pin 1  - 3V3
+pin 2  - 5V
+pin 6  - GND
 ```
 
 ### Signaux écran
 
 ``` text
-pin 12 — GPIO18 — BL
-pin 18 — GPIO24 — DC
-pin 19 — GPIO10 — MOSI
-pin 22 — GPIO25 — RESET
-pin 23 — GPIO11 — SCLK
-pin 24 — GPIO8  — CS
+pin 12 - GPIO18 - BL
+pin 18 - GPIO24 - DC
+pin 19 - GPIO10 - MOSI
+pin 22 - GPIO25 - RESET
+pin 23 - GPIO11 - SCLK
+pin 24 - GPIO8  - CS
 ```
 
 ### Signaux capteur
 
 ``` text
-pin 10 — GPIO15 — RX Pi ← TX LD2410C
-pin 8  — GPIO14 — TX Pi → RX LD2410C   (optionnel actuellement)
-pin 16 — GPIO23 — OUT présence LD2410C (câblée, non utilisée)
+pin 10 - GPIO15 - RX Pi ← TX LD2410C
+pin 8  - GPIO14 - TX Pi → RX LD2410C   (optionnel actuellement)
+pin 16 - GPIO23 - OUT présence LD2410C (câblée, non utilisée)
 ```
 
 ### Décompte des fils extérieurs
@@ -351,7 +351,7 @@ exploités aujourd'hui.
 ## 8. Vue synthétique du GPIO
 
 ``` text
-Raspberry Pi 4 — broches utilisées
+Raspberry Pi 4 - broches utilisées
 
 3V3       (1) ● ● (2)  5V
 GPIO2     (3) ● ● (4)  5V
@@ -371,9 +371,9 @@ GPIO11   (23) ● ● (24) GPIO8 ──────────► CS écran
 Et :
 
 ``` text
-pin 17 — 3V3 ───────────────────────────► ventilateur +
-pin 19 — GPIO10 / MOSI ─────────────────► SDA écran
-pin 23 — GPIO11 / SCLK ─────────────────► SCL écran
+pin 17 - 3V3 ───────────────────────────► ventilateur +
+pin 19 - GPIO10 / MOSI ─────────────────► SDA écran
+pin 23 - GPIO11 / SCLK ─────────────────► SCL écran
 ```
 
 Broches physiques occupées : 1, 2, 6, 8, 10, 12, 14, 16, 17, 18, 19,

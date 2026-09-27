@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.8] - 2026-09-27
+
+### Fixed
+
+- **Docs still relied on `requirements.txt`**, removed in 1.13.2. `CONTRIBUTING.md`
+  told to `pip install -r requirements.txt` and `docs/fr/INSTALL.md` called it
+  empty; both now name the apt packages actually used (the same list as
+  `scripts/linux/install-service.sh`).
+
+### Changed
+
+- Em dashes replaced by `-` in the project's own files (UI and report strings
+  included).
+
 ## [1.16.7] - 2026-08-26
 
 ### Corrigé

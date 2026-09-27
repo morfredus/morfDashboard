@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Installe, met a jour ou retire morfDashboard — meme interface que le parc.
+"""Installe, met a jour ou retire morfDashboard - meme interface que le parc.
 
     ./service.py install       installe et demarre le service
     ./service.py update        recopie l'application et redemarre
@@ -11,9 +11,9 @@ Pourquoi ce fichier existe, alors que morfDashboard garde ses scripts shell.
 
 Tous les autres services du parc exposent un `service.py` adosse a morfdeploy,
 et morfTools s'appuie sur cette regle : un projet qui est un service a un
-`service.py`. morfDashboard ne rentrait pas dans ce moule — c'est une
+`service.py`. morfDashboard ne rentrait pas dans ce moule - c'est une
 application Python deployee par rsync depuis l'arbre des sources, la ou
-morfdeploy copie un binaire compile — si bien qu'il restait un cas particulier.
+morfdeploy copie un binaire compile - si bien qu'il restait un cas particulier.
 
 Le cout de ce cas particulier a fini par se voir : `morf.py upgrade` recuperait
 son nouveau code et laissait le service tourner sur l'ancien, en silence, parce
@@ -22,7 +22,7 @@ morfTools, morfDashboard adopte l'interface commune et garde sa mecanique.
 
 Ce fichier ne reimplemente donc rien : il traduit une interface. Le deploiement
 reste entierement dans scripts/linux/, qui connait le rsync, les exclusions, la
-config locale et l'unite systemd — la connaissance du projet reste dans le
+config locale et l'unite systemd - la connaissance du projet reste dans le
 projet.
 """
 
@@ -136,7 +136,7 @@ def is_installed() -> bool:
 
     Interroge systemd plutot que de tester la presence du fichier d'unite :
     c'est le gestionnaire de services qui fait autorite sur ce qu'il connait.
-    Aucun privilege n'est requis — lister les unites est une lecture.
+    Aucun privilege n'est requis - lister les unites est une lecture.
     """
     probe = subprocess.run(
         ["systemctl", "list-unit-files", f"{SERVICE_NAME}.service"],

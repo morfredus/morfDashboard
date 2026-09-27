@@ -10,7 +10,7 @@ que chacune réimplémente la collecte.
 Le Dashboard devient donc un consommateur. Mais il ne doit **jamais** dépendre de
 morfMonitor pour fonctionner : un écran de supervision qui s'éteint parce que le
 superviseur est arrêté est un contresens. D'où le mode dégradé, qui rebascule
-automatiquement sur la collecte locale — et revient tout aussi automatiquement
+automatiquement sur la collecte locale - et revient tout aussi automatiquement
 au mode normal, sans redémarrage.
 
 Ce module ne fait qu'une chose : récupérer les données de morfMonitor et les
@@ -24,7 +24,7 @@ import urllib.error
 import urllib.request
 
 # Adresse locale : morfMonitor tourne sur la même machine que le Dashboard.
-# Passer par le réseau plutôt que par un appel direct est délibéré — c'est la
+# Passer par le réseau plutôt que par un appel direct est délibéré - c'est la
 # même API que consommeront un dashboard web ou un ESP32, donc elle est
 # exercée en permanence par le client le plus exigeant.
 DEFAULT_URL = "http://127.0.0.1:8790"
@@ -91,7 +91,7 @@ def to_dashboard_shape(data, service_colors):
 
     `service_colors(services_section)` est fourni par l'appelant : la couleur des
     pastilles relève de la présentation, qui reste au Dashboard. morfMonitor
-    fournit des faits (actif / inactif), pas des choix graphiques — c'est
+    fournit des faits (actif / inactif), pas des choix graphiques - c'est
     précisément la séparation des responsabilités visée.
     """
     system = data.get("system", {})

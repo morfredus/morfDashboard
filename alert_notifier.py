@@ -84,7 +84,7 @@ def _build_reboot_alert(latest, cause_info):
 
     message = f"{headline}. Rapport : {latest}"
     if evidence:
-        message += f" — indice retenu : {evidence}"
+        message += f" - indice retenu : {evidence}"
 
     return {
         "title": "morfDashboard",

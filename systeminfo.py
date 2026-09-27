@@ -221,10 +221,10 @@ def _service_colors(services_section, local_host=None):
     Dédoublonnage : un service morfSystem est déclaré À LA FOIS comme unité
     systemd ET comme application beacon dans morfsystem.json (les deux nourrissent
     la vue parc de morfMonitor). Sans filtrage, il apparaîtrait deux fois sur cet
-    écran. On privilégie la ligne BEACON — nom d'app canonique (« morfDashboard »
+    écran. On privilégie la ligne BEACON - nom d'app canonique (« morfDashboard »
     plutôt que le libellé systemd « DashBoard ») et état auto-rapporté par le
     service (un service qui se déclare dégradé passe en orange, ce que systemd,
-    binaire actif/inactif, ne sait pas dire) — et on masque l'unité systemd
+    binaire actif/inactif, ne sait pas dire) - et on masque l'unité systemd
     qu'elle recouvre. Un service sans beacon (morfUpdate) garde sa ligne systemd ;
     un équipement sans unité (MeteoHub) garde sa ligne beacon. Convention du parc
     utilisée pour l'appariement : l'unité systemd est le nom d'app en minuscules
@@ -374,7 +374,7 @@ def _monitor_answer_is_usable(data):
     Répondre n'est pas savoir. Si morfMonitor n'a pas chargé sa configuration
     (fichier partagé absent au démarrage, par exemple), il répond correctement
     mais ne supervise RIEN : ni service systemd, ni sonde réseau. L'accepter
-    telle quelle vidait l'écran de ses pastilles — un affichage vide, sans la
+    telle quelle vidait l'écran de ses pastilles - un affichage vide, sans la
     moindre alerte, alors que la collecte locale aurait très bien fonctionné.
 
     Une machine réellement dépourvue de composant supervisé n'existe pas en
@@ -396,7 +396,7 @@ def get_system_info():
     pendant un incident qu'on regarde l'écran.
 
     Le champ « source » permet de savoir d'un coup d'œil d'où viennent les
-    données — indispensable au diagnostic, et discret à l'affichage.
+    données - indispensable au diagnostic, et discret à l'affichage.
     """
     if MONITOR_ENABLED:
         data = monitor_client.fetch_all(MONITOR_URL, MONITOR_TIMEOUT)
@@ -497,7 +497,7 @@ def _services_color(services):
 def screensaver_status(info):
     """Trois couleurs de pastille pour l'écran de veille.
 
-    Renvoie (thermique, charge CPU, services) — dans l'ordre d'affichage.
+    Renvoie (thermique, charge CPU, services) - dans l'ordre d'affichage.
     """
     return (
         health_color(info.get("temp"), TEMP_WARNING, TEMP_CRITICAL),

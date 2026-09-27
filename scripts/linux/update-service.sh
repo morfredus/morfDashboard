@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# update-service.sh — Met à jour morfDashboard installé en service.
+# update-service.sh - Met à jour morfDashboard installé en service.
 #
 # Récupère le code (git pull), recopie l'application dans le dossier fixe, puis
 # redémarre le service. Sans compilation (Python). Complément de install-service.sh.

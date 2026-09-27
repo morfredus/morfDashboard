@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# install-service.sh — Installe morfDashboard en service systemd robuste.
+# install-service.sh - Installe morfDashboard en service systemd robuste.
 #
 # Copie l'application dans un dossier FIXE (par défaut /opt/morfdashboard),
 # hors du clone git, puis installe/active le service « morfdashboard » pointant là.
@@ -48,7 +48,7 @@ if [[ "${1:-}" == "--uninstall" ]]; then
     rm -f "$UNIT_DEST"
     rm -f "$SUDOERS_POWER"
     systemctl daemon-reload
-    echo "Service supprimé. (Application $APP_DIR conservée — la retirer : sudo rm -rf $APP_DIR)"
+    echo "Service supprimé. (Application $APP_DIR conservée - la retirer : sudo rm -rf $APP_DIR)"
     exit 0
 fi
 
@@ -83,7 +83,7 @@ systemctl stop "$SERVICE_NAME" 2>/dev/null || true
 # Avant la 1.6.1, ce service s'appelait « dashboard ». Une unité de ce nom est
 # encore installée et ACTIVE sur toute machine mise à jour depuis cette époque.
 # L'étape 5 traquait le crontab et l'autostart, mais pas l'ancienne UNITÉ elle-
-# même — la plus probable : sans ce nettoyage, dashboard.service et
+# même - la plus probable : sans ce nettoyage, dashboard.service et
 # morfdashboard.service piloteraient tous deux le même écran SPI.
 LEGACY_UNIT="/etc/systemd/system/dashboard.service"
 if [[ -f "$LEGACY_UNIT" ]]; then
@@ -133,14 +133,14 @@ echo "Service '$SERVICE_NAME' installé (ExecStart -> $APP_DIR/dashboard.py) et 
 # « sudo -n systemctl poweroff|reboot ». Le service tourne en utilisateur
 # non-root : on autorise UNIQUEMENT ces deux commandes sans mot de passe.
 # Sécurité : on valide le fichier avec « visudo -c » AVANT de le mettre en
-# place — jamais de sudoers invalide, qui casserait sudo sur la machine.
+# place - jamais de sudoers invalide, qui casserait sudo sur la machine.
 # Étape tolérante : root garde de toute façon le droit ; sans ce fichier, le
 # bouton reste simplement sans effet (le service, lui, tourne normalement).
 if [[ "$RUN_USER" != "root" ]]; then
     SUDOERS_LINE="$RUN_USER ALL=(root) NOPASSWD: /usr/bin/systemctl poweroff, /usr/bin/systemctl reboot"
     SUDOERS_TMP="$(mktemp)"
     {
-        echo "# Installé par morfDashboard install-service.sh — bouton d'alimentation."
+        echo "# Installé par morfDashboard install-service.sh - bouton d'alimentation."
         echo "# Autorise le service (utilisateur non-root) à éteindre/redémarrer proprement."
         echo "$SUDOERS_LINE"
     } > "$SUDOERS_TMP"
@@ -162,13 +162,13 @@ echo
 echo "Vérification d'anciens lancements résiduels…"
 FOUND=0
 if crontab -u "$RUN_USER" -l 2>/dev/null | grep -iqE "dashboard|morfDashboard"; then
-    echo "  ⚠ crontab de $RUN_USER contient une entrée dashboard — à retirer :  crontab -u $RUN_USER -e"; FOUND=1
+    echo "  ⚠ crontab de $RUN_USER contient une entrée dashboard - à retirer :  crontab -u $RUN_USER -e"; FOUND=1
 fi
 if [[ -f /etc/rc.local ]] && grep -iqE "dashboard|morfDashboard" /etc/rc.local; then
-    echo "  ⚠ /etc/rc.local référence dashboard — à retirer manuellement"; FOUND=1
+    echo "  ⚠ /etc/rc.local référence dashboard - à retirer manuellement"; FOUND=1
 fi
 for f in "/home/$RUN_USER/.config/autostart/"*dashboard* "/home/$RUN_USER/.config/autostart/"*Dashboard*; do
-    [[ -e "$f" ]] && { echo "  ⚠ autostart bureau : $f — à retirer"; FOUND=1; }
+    [[ -e "$f" ]] && { echo "  ⚠ autostart bureau : $f - à retirer"; FOUND=1; }
 done
 [[ "$FOUND" -eq 0 ]] && echo "  Aucun autre lancement automatique détecté. Le service 'morfdashboard' a remplacé l'ancien."
 

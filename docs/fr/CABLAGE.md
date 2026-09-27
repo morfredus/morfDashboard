@@ -200,7 +200,7 @@ monté, la fonction ne fait rien (voir plus bas).
 | Masse du bouton | GND        | 9 (par ex.)     | -                     |
 
 Câblage : un contact du poussoir sur la **broche 5 (GPIO3)**, l'autre sur une
-**masse** (broche 9 par exemple). Rien d'autre — pas de résistance externe : le
+**masse** (broche 9 par exemple). Rien d'autre - pas de résistance externe : le
 pull-up interne (renforcé, sur GPIO3, par le pull-up matériel de la ligne) tient
 l'entrée au niveau haut au repos.
 
@@ -230,7 +230,7 @@ l'activation globale (`POWER_BUTTON_ENABLED`).
 
 En logique active-basse avec pull-up, une ligne **sans bouton** reste au niveau
 haut, donc lue « non pressée » : rien ne se déclenche. C'est le cas au départ,
-avant montage du bouton — il n'y a **aucun** risque d'extinction ou de
+avant montage du bouton - il n'y a **aucun** risque d'extinction ou de
 redémarrage en boucle. Garde-fou supplémentaire : `power_button.py` refuse d'agir
 sur une ligne déjà « pressée » au démarrage (câblage flottant, bloqué ou mal
 branché) tant qu'un relâchement n'a pas été observé.

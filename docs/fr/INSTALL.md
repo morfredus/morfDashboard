@@ -10,7 +10,7 @@ Raspberry Pi.
 
 -   Debian 13 (Trixie)
 -   Python 3, avec les modules `Pillow`, `numpy`, `psutil`, `RPi.GPIO`, `spidev`
-    (installés au niveau système ; `requirements.txt` est vide)
+    (paquets système installés avec apt ; il n'y a pas de `requirements.txt`)
 -   SPI activé
 
 ## Vérifier le fonctionnement (sans installer)

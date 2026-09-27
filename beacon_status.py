@@ -84,7 +84,7 @@ def collect(listen_seconds, port, app_filter):
 def render_markdown(apps, listen_seconds, port):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     out = [
-        f"# État des applications — {now}",
+        f"# État des applications - {now}",
         "",
         f"_Découverte : écoute morfBeacon pendant {listen_seconds:.0f} s "
         f"sur le port UDP {port}._",
@@ -103,14 +103,14 @@ def render_markdown(apps, listen_seconds, port):
         state = status.get("state") or e.get("state") or "?"
         emoji = STATE_EMOJI.get(state, "⚫")
 
-        out.append(f"## {emoji} {app} — {state}")
+        out.append(f"## {emoji} {app} - {state}")
         out.append("")
         out.append(f"- **Hôte** : {e.get('host', '?')} (`{e.get('ip', '?')}`)")
         out.append(f"- **Version** : {e.get('version', '?')}")
         uptime = status.get("uptime_s", e.get("uptime_s"))
         if uptime is not None:
             out.append(f"- **Uptime** : {_human_uptime(uptime)} ({int(uptime)} s)")
-        out.append(f"- **Port /status** : {e.get('status_port', 0) or '—'}")
+        out.append(f"- **Port /status** : {e.get('status_port', 0) or '-'}")
         out.append("")
 
         if e.get("status_error"):

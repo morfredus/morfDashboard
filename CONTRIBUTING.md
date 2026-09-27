@@ -8,9 +8,10 @@ dashboard for the Raspberry Pi on a tiny SPI screen. Contributions that keep it
 
 - **Small and legible.** The screen is 240 × 320: every pixel counts. Prefer
   clarity over features.
-- **Standard library first.** The only runtime dependencies are `Pillow` and
-  `psutil` (see `requirements.txt`). New third-party dependencies should be a
-  last resort - the network listener (`beacon_listener.py`), for example, uses
+- **Standard library first.** The runtime dependencies (`Pillow`, `numpy`,
+  `psutil`, `RPi.GPIO`, `spidev`) are system packages installed with apt on the
+  Raspberry Pi; there is no `requirements.txt`. New third-party dependencies
+  should be a last resort - the network listener (`beacon_listener.py`), for example, uses
   the standard library only.
 - **Configuration in one place.** User-facing settings (thresholds, drivers,
   monitored services, watched apps, pin-out) live in `config.py`.
@@ -47,7 +48,7 @@ On a Raspberry Pi with the screen wired (see
 [docs/fr/CABLAGE.md](docs/fr/CABLAGE.md)):
 
 ``` bash
-pip install -r requirements.txt
+sudo apt install python3-pil python3-numpy python3-psutil python3-rpi.gpio python3-spidev
 python3 dashboard.py            # Ctrl+C to stop
 ```
 
