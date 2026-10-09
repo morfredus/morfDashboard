@@ -29,6 +29,7 @@ from config import (
     SSD_CRITICAL,
     TEMP_CRITICAL,
     LOAD_CRITICAL,
+    REBOOT_ALERT_ACK_FILE,
 )
 
 
@@ -95,6 +96,25 @@ def _build_reboot_alert(latest, cause_info):
     }
 
 
+def _notified_file():
+    # Voisin du fichier d'acquittement : meme dossier, donc meme persistance.
+    return REBOOT_ALERT_ACK_FILE.with_name(".dashboard_reboot_notified")
+
+
+def _read_notified():
+    try:
+        return _notified_file().read_text().strip()
+    except Exception:
+        return ""
+
+
+def _write_notified(report_id):
+    try:
+        _notified_file().write_text(f"{report_id}\n")
+    except Exception as exc:
+        print(f"[alerts] ecriture du marqueur de notification impossible: {exc}", flush=True)
+
+
 class AlertNotifier:
     def __init__(self):
         self._states = {}
@@ -128,6 +148,12 @@ class AlertNotifier:
                 self._send(alert["title"], alert["message"], alert["level"])
                 state["sent_at"] = now
                 state["active"] = True
+                if alert.get("once_id"):
+                    # Evenement ponctuel : memorise sur disque pour ne jamais
+                    # le renvoyer, meme apres un redemarrage du dashboard
+                    # (ex. reveil de l'ecran). Pas de "retour a la normale".
+                    _write_notified(alert["once_id"])
+                    state["active"] = False
 
         for key in list(self._states):
             if key in active_keys:
@@ -173,7 +199,13 @@ class AlertNotifier:
         reboot_alert = info.get("reboot_alert", {})
         if reboot_alert.get("active"):
             latest = reboot_alert.get("latest") or "rapport inconnu"
-            alerts["reboot"] = _build_reboot_alert(latest, info.get("reboot_cause"))
+            report = reboot_alert.get("report") or latest
+            # Un reboot ne se notifie qu'une fois, tant que son rapport reste
+            # le meme (le badge peut rester affiche, la notification non).
+            if _read_notified() != report:
+                alert = _build_reboot_alert(latest, info.get("reboot_cause"))
+                alert["once_id"] = report
+                alerts["reboot"] = alert
 
         return alerts
 

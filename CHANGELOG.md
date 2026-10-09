@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.9] - 2026-10-09
+
+### Fixed
+
+- **Reboot notification sent several times.** The reboot alert stays active until
+  acknowledged, so the 6 h repeat cooldown (and a dashboard restart, e.g. on screen
+  wake) re-sent it to morfNotify. A reboot is now notified once per boot report; the
+  report name is persisted next to the acknowledgement file
+  (`.dashboard_reboot_notified`) and no recovery message is sent for it.
+
 ## [1.16.8] - 2026-09-27
 
 ### Fixed
