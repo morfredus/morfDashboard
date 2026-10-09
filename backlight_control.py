@@ -19,6 +19,8 @@ Robuste par construction : toute erreur de lecture retombe sur « auto », pour
 qu'un fichier absent, vide ou corrompu ne laisse jamais l'écran coincé éteint.
 """
 
+import os
+
 from config import BL_ACTIVE, BL_STANDBY, BL_OFF, BACKLIGHT_STATE_FILE
 
 # Les trois modes de forçage. « auto » est le comportement historique.
@@ -55,7 +57,13 @@ def set_mode(mode, path=BACKLIGHT_STATE_FILE):
             f"mode inconnu : {mode!r} (attendu : {', '.join(VALID_MODES)})"
         )
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(mode + "\n", encoding="utf-8")
+    # Écriture atomique : fichier temporaire puis remplacement. Remplacer un
+    # fichier ne demande que le droit d'écriture sur le DOSSIER, pas sur le
+    # fichier lui-même : un backlight.state resté propriété de root (ancien
+    # « sudo screenctl ») ne bloque donc plus la CLI lancée sans sudo.
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(mode + "\n", encoding="utf-8")
+    os.replace(tmp, path)
 
 
 def effective_backlight(asleep, mode=None):

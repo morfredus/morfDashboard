@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.11] - 2026-10-09
+
+### Fixed
+
+- **`screenctl` needed sudo.** `backlight.state` could be left owned by root (created once with
+  `sudo screenctl`), and rewriting it in place was refused for the service user. The state file is now
+  written atomically (temporary file + `os.replace`), which only needs write access to the directory.
+
 ## [1.16.10] - 2026-10-09
 
 ### Added
