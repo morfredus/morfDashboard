@@ -10,3 +10,4 @@
 # configuration a partir de son propre emplacement (config.py via __file__), pas
 # du repertoire courant. On peut donc l'invoquer de n'importe ou.
 screenctl   direct   screenctl.py
+rebootack   direct   reboot_ack.py

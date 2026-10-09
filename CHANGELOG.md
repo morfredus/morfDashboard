@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.10] - 2026-10-09
+
+### Added
+
+- `rebootack` public CLI command (`reboot_ack.py`, `direct` mode) declared in `cli.manifest`,
+  to acknowledge the reboot alert from anywhere once `activate-cli.sh` has been run.
+
 ## [1.16.9] - 2026-10-09
 
 ### Fixed
