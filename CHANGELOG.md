@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.13] - 2026-10-10
+
+### Changed
+
+- **Partially hardened systemd unit**: `ProtectSystem=full` (`/usr`, `/boot`, `/etc` read-only) and
+  `PrivateTmp=yes`. Deliberately not `strict` / `ProtectHome` / `NoNewPrivileges`: the dashboard
+  writes under the user's `~/Logs` (reboot-alert markers) and the power button runs
+  `sudo -n systemctl poweroff|reboot`.
+
 ## [1.16.12] - 2026-10-10
 
 ### Fixed

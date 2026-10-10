@@ -30,5 +30,16 @@ RestartSec=5
 StandardOutput=journal
 StandardError=journal
 
+# Durcissement PARTIEL (etape D de l'hygiene, 2026-10-10). Volontairement moins strict que
+# morfNotify/morfSync, pour trois raisons propres au dashboard :
+#  - il lit et ecrit sous le HOME de l'utilisateur (/home/<user>/Logs : dossiers Boot_* du
+#    script de surveillance, marqueurs d'acquittement) -> pas de ProtectHome ni de strict ;
+#  - le bouton d'alimentation lance « sudo -n systemctl poweroff/reboot » -> pas de
+#    NoNewPrivileges (il annulerait le setuid de sudo) ;
+#  - le materiel (/dev/gpiomem, /dev/spidev0.0) reste accessible dans tous les cas.
+# « full » met /usr, /boot et /etc en lecture seule et laisse /var et /home inscriptibles.
+ProtectSystem=full
+PrivateTmp=yes
+
 [Install]
 WantedBy=multi-user.target
