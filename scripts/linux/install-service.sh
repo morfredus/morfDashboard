@@ -108,7 +108,8 @@ echo "Application copiée dans $APP_DIR"
 
 # --- 3. Installer/preserver la configuration locale ----------------------
 mkdir -p "$CONFIG_DIR"
-if [[ "$REFRESH_CONFIG" -eq 1 && -f "$CONFIG_FILE" ]]; then
+if [[ "$REFRESH_CONFIG" -eq 1 && -f "$CONFIG_FILE" ]] \
+   && ! cmp -s "$CONFIG_FILE" "$REPO_ROOT/config.local.example.py"; then
     BACKUP="$CONFIG_FILE.$(date +%Y%m%d-%H%M%S).bak"
     cp -a "$CONFIG_FILE" "$BACKUP"
     install -m 0644 "$REPO_ROOT/config.local.example.py" "$CONFIG_FILE"

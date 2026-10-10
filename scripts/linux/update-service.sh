@@ -99,7 +99,8 @@ chown -R "$RUN_USER:$RUN_USER" "$APP_DIR"
 
 # --- Installer la config locale si elle n'existe pas encore --------------
 mkdir -p "$CONFIG_DIR"
-if [[ "$REFRESH_CONFIG" -eq 1 && -f "$CONFIG_FILE" ]]; then
+if [[ "$REFRESH_CONFIG" -eq 1 && -f "$CONFIG_FILE" ]] \
+   && ! cmp -s "$CONFIG_FILE" "$REPO_ROOT/config.local.example.py"; then
     BACKUP="$CONFIG_FILE.$(date +%Y%m%d-%H%M%S).bak"
     cp -a "$CONFIG_FILE" "$BACKUP"
     install -m 0644 "$REPO_ROOT/config.local.example.py" "$CONFIG_FILE"

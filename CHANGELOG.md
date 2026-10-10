@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the project follows [Semantic Versioning](https://semver.org/) (the `VERSION`
 file at the repository root).
 
+## [1.16.12] - 2026-10-10
+
+### Fixed
+
+- **`install-service.sh` / `update-service.sh`: no backup when the local config already equals
+  the example** (`--refresh-config` left identical `.bak` files).
+
 ## [1.16.11] - 2026-10-09
 
 ### Fixed
